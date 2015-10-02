@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "debug"
 
 //définition primitive des structures de gestion de nombres
 struct num { int positif; struct cell *chiffres; };
 struct cell { int chiffre; struct cell *suivant; };
 
 typedef struct num num; //permet d'utiliser la structure num comme un type
+typedef struct cell cell;
 
 char* entreeDynamique(FILE*);
 
@@ -28,7 +28,24 @@ int main()
 			printf("memoire epuisee");
 			continue;
 		}
-		printf("%s\n",line);
+
+		char varName = NULL;
+		for(int i = 0; i < strlen(line); i++)
+		{
+			if(line[i] == '=')
+			{
+				//il n'y a pas d'espace entre le = et le nom de la variable
+				varName = line[i+1];
+				break;
+			}
+		}
+
+		if(varName != NULL)
+		{
+
+		}
+
+		printf("%s\n",line); //test
 	}
 }
 
@@ -72,9 +89,31 @@ char* entreeDynamique(FILE* input)
 	return mot;
 }
 
+void printNum(num toPrint)
+{
+	if(toPrint.positif == 0) //nombre negatif
+		printf("-");
+	cell *chiffres = toPrint.chiffres;
+	while(chiffres != NULL)
+	{
+		print("%d",chiffres.chiffres);
+		chiffres = chiffres.suivant;
+	}
+}
+
 num addition(num a, num b)
 {
+	bool calculFini = false;
+	int carry = 0;
+	chiffre chiffresA = a.chiffres;
+	chiffre chiffresB = a.chiffres;
 	num result;
+	do
+	{
+		calculFini = chiffresA.suivant == NULL && chiffresB.suivant == NULL
+	}
+	while(!calculFini)
+
 	return result;
 }
 num soustraction(num a, num b)
