@@ -1,18 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "debug"
 
 //définition primitive des structures de gestion de nombres
 struct num { int positif; struct cell *chiffres; };
 struct cell { int chiffre; struct cell *suivant; };
 
+typedef struct num num; //permet d'utiliser la structure num comme un type
 
 char* entreeDynamique(FILE*);
 
 //définition des opérateurs
-int soustraction(int, int);
-int addition(int, int);
-int multiplication(int, int);
+num soustraction(num, num);
+num addition(num, num);
+num multiplication(num, num);
 
 int main()
 {
@@ -31,6 +33,7 @@ int main()
 }
 
 //lit une ligne d'une longueur arbitraire et la retourne
+//retourne NULL si il n'y a pas assez de mémoire
 char* entreeDynamique(FILE* input)
 {
 	int defaut = 32;//32 bytes par defaut;
@@ -59,21 +62,28 @@ char* entreeDynamique(FILE* input)
 				return NULL;
 		}
 	}
+	if(taille > defaut)
+	{
+		taille++;
+		mot = realloc(mot, sizeof(char)*taille);
+	}
 	mot[taille]='\0'; //terminer la string
-	taille++;
-	mot = realloc(mot, sizeof(char)*taille);
+
 	return mot;
 }
 
-int soustraction(int a, int b)
+num addition(num a, num b)
 {
-	return 0;
+	num result;
+	return result;
 }
-int addition(int a, int b)
+num soustraction(num a, num b)
 {
-	return 0;
+	num result;
+	return result;
 }
-int multiplication(int a, int b)
+num multiplication(num a, num b)
 {
-	return 0;
+	num result;
+	return result;
 }
