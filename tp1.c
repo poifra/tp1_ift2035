@@ -9,6 +9,10 @@ struct cell { int chiffre; struct cell *suivant; };
 typedef struct num num; //permet d'utiliser la structure num comme un type
 typedef struct cell cell;
 
+typedef int bool; //permet d'utiliser des booleens directement
+#define true 1
+#define false 0
+
 char* entreeDynamique(FILE*);
 
 //définition des opérateurs
@@ -30,7 +34,8 @@ int main()
 		}
 
 		char varName = NULL;
-		for(int i = 0; i < strlen(line); i++)
+		int i;
+		for(i = 0; i < strlen(line); i++)
 		{
 			if(line[i] == '=')
 			{
@@ -96,8 +101,8 @@ void printNum(num toPrint)
 	cell *chiffres = toPrint.chiffres;
 	while(chiffres != NULL)
 	{
-		print("%d",chiffres.chiffres);
-		chiffres = chiffres.suivant;
+		print("%d",chiffres->chiffre);
+		chiffres = chiffres->suivant;
 	}
 }
 
@@ -105,14 +110,27 @@ num addition(num a, num b)
 {
 	bool calculFini = false;
 	int carry = 0;
-	chiffre chiffresA = a.chiffres;
-	chiffre chiffresB = a.chiffres;
+	cell *chiffresA = a.chiffres;
+	cell *chiffresB = a.chiffres;
+	cell *chiffresResult;
+	int intermediaire = 0;
 	num result;
+	result.chiffres = chiffresResult;
 	do
 	{
-		calculFini = chiffresA.suivant == NULL && chiffresB.suivant == NULL
+		calculFini = chiffresA->suivant == NULL && chiffresB->suivant == NULL;
+		
+		intermediaire = chiffresA->chiffre + chiffresB->chiffre + carry;
+		
+		if(intermediaire > 9) //retenue
+		{
+			carry = 1;
+			intermediaire -= 10;
+		}
+		chiffresResult->chiffre = intermediaire;
+		chiffresResult->suivant = chiffresResult;
 	}
-	while(!calculFini)
+	while(!calculFini);
 
 	return result;
 }
