@@ -41,9 +41,9 @@ int main()
 		cell *c = malloc(sizeof(cell));
 		cell *c2 = malloc(sizeof(cell));
 
-		c->chiffre = 23;
+		c->chiffre = 8;
 		c->suivant = NULL;
-		c2->chiffre = 23;
+		c2->chiffre = 8;
 		c2->suivant = NULL;
 
 		a.nombre = c;
@@ -95,7 +95,7 @@ num addition(num a, num b)
 
 	int intermediaire = 0;
 	int carry = 0;
-
+	cell *newUnit;
 	do
 	{
 		
@@ -107,13 +107,21 @@ num addition(num a, num b)
 			carry = 1;
 			intermediaire -= 10;
 		}
+		else
+			carry = 0;
 
-		nombreResult->chiffre = intermediaire;
+		newUnit = malloc(sizeof(cell));
+		newUnit->chiffre = intermediaire;
+		nombreResult = newUnit;
 
 	}
 	while(!calculFini);
 
 	nombreResult->suivant = newUnit; //termine la liste chainée
+
+
+	if(carry)
+
 	return result;
 }
 num soustraction(num a, num b)
