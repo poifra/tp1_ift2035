@@ -1,10 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 //définition primitive des structures de gestion de nombres
-struct num { int positif; struct cell *chiffres; };
-struct cell { int chiffre; struct cell *suivant; };
+struct num { 
+	int positif; 
+	struct cell *nombre; 
+};
+struct cell {
+	int chiffre; 
+	struct cell *suivant; 
+};
 
 typedef struct num num; //permet d'utiliser la structure num comme un type
 typedef struct cell cell;
@@ -14,6 +21,8 @@ typedef int bool; //permet d'utiliser des booleens directement
 #define false 0
 
 char* entreeDynamique(FILE*);
+
+void printNum(num);
 
 //définition des opérateurs
 num soustraction(num, num);
@@ -25,6 +34,23 @@ int main()
 	char *line;
 	while(1)
 	{
+		// TESTS
+
+		num a;
+		num b;
+		cell *c = malloc(sizeof(cell));
+		cell *c2 = malloc(sizeof(cell));
+
+		c->chiffre = 23;
+		c->suivant = NULL;
+		c2->chiffre = 23;
+		c2->suivant = NULL;
+
+		a.nombre = c;
+		b.nombre = c2;
+		num r = addition(a,b);
+		printNum(r);
+
 		printf(">");
 		line = entreeDynamique(stdin);
 		if(line == NULL)
@@ -51,6 +77,65 @@ int main()
 		}
 
 		printf("%s\n",line); //test
+		
+		
+	}
+}
+
+num addition(num a, num b)
+{
+	bool calculFini = false;
+
+	cell *nombreA = a.nombre;
+	cell *nombreB = b.nombre;
+
+	num result;
+	cell *nombreResult = malloc(sizeof(cell));
+	result.nombre = nombreResult; //pointeur vers la premiere case de la liste
+
+	int intermediaire = 0;
+	int carry = 0;
+
+	do
+	{
+		
+		calculFini = nombreA->suivant == NULL && nombreB->suivant == NULL;
+
+		intermediaire = nombreA->chiffre + nombreB->chiffre + carry;
+		if(intermediaire > 9)
+		{
+			carry = 1;
+			intermediaire -= 10;
+		}
+
+		nombreResult->chiffre = intermediaire;
+
+	}
+	while(!calculFini);
+
+	nombreResult->suivant = newUnit; //termine la liste chainée
+	return result;
+}
+num soustraction(num a, num b)
+{
+	num result;
+	return result;
+}
+num multiplication(num a, num b)
+{
+	num result;
+	return result;
+}
+
+void printNum(num toPrint)
+{
+	if(toPrint.positif == 0) //nombre negatif
+		printf("-");
+	cell *nombre = toPrint.nombre;
+	while(nombre != NULL)
+	{
+		printf("%d\n",nombre->chiffre);
+		nombre = nombre->suivant;
 	}
 }
 
@@ -94,53 +179,3 @@ char* entreeDynamique(FILE* input)
 	return mot;
 }
 
-void printNum(num toPrint)
-{
-	if(toPrint.positif == 0) //nombre negatif
-		printf("-");
-	cell *chiffres = toPrint.chiffres;
-	while(chiffres != NULL)
-	{
-		print("%d",chiffres->chiffre);
-		chiffres = chiffres->suivant;
-	}
-}
-
-num addition(num a, num b)
-{
-	bool calculFini = false;
-	int carry = 0;
-	cell *chiffresA = a.chiffres;
-	cell *chiffresB = a.chiffres;
-	cell *chiffresResult;
-	int intermediaire = 0;
-	num result;
-	result.chiffres = chiffresResult;
-	do
-	{
-		calculFini = chiffresA->suivant == NULL && chiffresB->suivant == NULL;
-		
-		intermediaire = chiffresA->chiffre + chiffresB->chiffre + carry;
-		
-		if(intermediaire > 9) //retenue
-		{
-			carry = 1;
-			intermediaire -= 10;
-		}
-		chiffresResult->chiffre = intermediaire;
-		chiffresResult->suivant = chiffresResult;
-	}
-	while(!calculFini);
-
-	return result;
-}
-num soustraction(num a, num b)
-{
-	num result;
-	return result;
-}
-num multiplication(num a, num b)
-{
-	num result;
-	return result;
-}
