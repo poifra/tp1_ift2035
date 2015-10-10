@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 
 //définition primitive des structures de gestion de nombres
 struct num { 
@@ -16,92 +15,76 @@ struct cell {
 typedef struct num num; //permet d'utiliser la structure num comme un type
 typedef struct cell cell;
 
-typedef int bool; //permet d'utiliser des booleens directement
-#define true 1
-#define false 0
+int numCreator(char*, num*);
 
 char* entreeDynamique(FILE*);
 
-void printNum(num);
+void printNum(num*);
 
 //définition des opérateurs
 num soustraction(num, num);
-num addition(num, num);
+num* addition(num*, num*);
 num multiplication(num, num);
 
 int main()
 {
 	char *line;
-	while(1)
-	{
 		// TESTS
+		num *a = malloc(sizeof(num));
+		num *b = malloc(sizeof(num));
+		numCreator("32",a);
+		numCreator("12",b);
+		printNum(a);
+		printNum(b);
+		num *r = addition(a,b);
 
-		num a;
-		num b;
-		cell *c = malloc(sizeof(cell));
-		cell *c2 = malloc(sizeof(cell));
-
-		c->chiffre = 8;
-		c->suivant = NULL;
-		c2->chiffre = 8;
-		c2->suivant = NULL;
-
-		a.nombre = c;
-		b.nombre = c2;
-		num r = addition(a,b);
 		printNum(r);
+		//FIN TESTS
 
-		printf(">");
-		line = entreeDynamique(stdin);
-		if(line == NULL)
-		{
-			printf("memoire epuisee");
-			continue;
-		}
+		// printf(">");
+		// line = entreeDynamique(stdin);
+		// if(line == NULL)
+		// {
+		// 	printf("memoire epuisee");
+		// 	continue;
+		// }
 
-		char varName = NULL;
-		int i;
-		for(i = 0; i < strlen(line); i++)
-		{
-			if(line[i] == '=')
-			{
-				//il n'y a pas d'espace entre le = et le nom de la variable
-				varName = line[i+1];
-				break;
-			}
-		}
+		// char varName = '\0';
+		// int i;
+		// for(i = 0; i < strlen(line); i++)
+		// {
+		// 	if(line[i] == '=')
+		// 	{
+		// 		//il n'y a pas d'espace entre le = et le nom de la variable
+		// 		varName = line[i+1];
+		// 		break;
+		// 	}
+		// }
 
-		if(varName != NULL)
-		{
+		// if(varName != '\0')
+		// {
 
-		}
-
-		printf("%s\n",line); //test
-		
-		
-	}
+		// }
+		// printf("%s\n",line); //test
+	
 }
 
-num addition(num a, num b)
+num* addition(num *a, num *b)
 {
-	bool calculFini = false;
+	num *result = malloc(sizeof(num));
+	result->positif = 1;
 
-	cell *nombreA = a.nombre;
-	cell *nombreB = b.nombre;
-
-	num result;
-	cell *nombreResult = malloc(sizeof(cell));
-	result.nombre = nombreResult; //pointeur vers la premiere case de la liste
-
-	int intermediaire = 0;
+	cell *cA = a->nombre;
+	cell *cB = b->nombre;
+	cell *resultat = malloc(sizeof(cell)); //TODO : memory check
+	resultat->suivant = NULL; //le digit le moins significatif a rien apres
+	int calculFini = 0;
 	int carry = 0;
 	cell *newUnit;
 	do
 	{
-		
-		calculFini = nombreA->suivant == NULL && nombreB->suivant == NULL;
-
-		intermediaire = nombreA->chiffre + nombreB->chiffre + carry;
+		calculFini = cA->suivant == NULL && cB->suivant == NULL;
+		int intermediaire = cA->chiffre + cB->chiffre + carry;
 		if(intermediaire > 9)
 		{
 			carry = 1;
@@ -110,22 +93,34 @@ num addition(num a, num b)
 		else
 			carry = 0;
 
+		resultat->chiffre = intermediaire;
+		cA = cA->suivant;
+		cB = cB->suivant;
 		newUnit = malloc(sizeof(cell));
-		newUnit->chiffre = intermediaire;
-		nombreResult = newUnit;
+		newUnit->suivant = resultat;
+	}
+	while(!calculFini);	
+
+	if(carry) // on vérifie le digit le plus significatif
+		newUnit->chiffre++;
+
+	if(newUnit->chiffre > 9) //carry dans le chiffre le plus significatif
+	{
+		newUnit->chiffre -= 10;
+		cell *mostSignifiant = malloc(sizeof(cell));
+		mostSignifiant->suivant = newUnit;
+		mostSignifiant->chiffre = carry;
+		result->nombre = mostSignifiant;
 
 	}
-	while(!calculFini);
-
-	nombreResult->suivant = newUnit; //termine la liste chainée
-
-
-	if(carry)
+	else
+		result->nombre = newUnit;
 
 	return result;
 }
 num soustraction(num a, num b)
 {
+	//utiliser la méthode des compléments?
 	num result;
 	return result;
 }
@@ -135,16 +130,44 @@ num multiplication(num a, num b)
 	return result;
 }
 
-void printNum(num toPrint)
+//transform a string number to a linked list of infinite precision. 
+//retourne -1 si il n'y a pas assez de mémoire pour stocker le nombre
+int numCreator(char *str, num *toCreate)
 {
-	if(toPrint.positif == 0) //nombre negatif
+	int i;
+	cell **c = &toCreate->nombre;
+
+	toCreate->positif=1;
+	//on stocke les nombres en little endian pour faciliter les calculs
+	for(i = strlen(str)-1; i >= 0; i--)
+	{
+		*c = malloc(sizeof(cell));
+		if(*c == NULL)
+		{
+			printf("memoire epuisee\n");
+			return -1;
+		}
+
+		(*c)->chiffre = str[i] - '0'; //transform 'char' to int ie. '5' to 5. fonctionne car on a seulement des nombres 0-9
+		c = &(*c)->suivant;
+		
+	}
+	*c = NULL;
+	return 0;
+}
+
+void printNum(num *toPrint)
+{
+	if(!toPrint->positif) //nombre negatif
 		printf("-");
-	cell *nombre = toPrint.nombre;
+
+	cell *nombre = toPrint->nombre;
 	while(nombre != NULL)
 	{
-		printf("%d\n",nombre->chiffre);
+		printf("%d",nombre->chiffre);
 		nombre = nombre->suivant;
 	}
+	printf("\n");
 }
 
 //lit une ligne d'une longueur arbitraire et la retourne
@@ -186,4 +209,3 @@ char* entreeDynamique(FILE* input)
 
 	return mot;
 }
-
