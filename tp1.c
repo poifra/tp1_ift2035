@@ -5,11 +5,13 @@
 //définition primitive des structures de gestion de nombres
 struct num { 
 	int positif; 
-	struct cell *nombre; 
+	struct cell *nombre;
+	struct cell *dernier;
 };
 struct cell {
 	int chiffre; 
-	struct cell *suivant; 
+	struct cell *suivant;
+	struct cell *precedent;
 };
 
 typedef struct num num; //permet d'utiliser la structure num comme un type
@@ -20,6 +22,7 @@ int numCreator(char*, num*);
 char* entreeDynamique(FILE*);
 
 void printNum(num*);
+void freeNumber(num*);
 
 //définition des opérateurs
 num soustraction(num, num);
@@ -32,13 +35,13 @@ int main()
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator("32",a);
-		numCreator("12",b);
+		numCreator("32892564417",a);
+		numCreator("12985148622",b);
 		printNum(a);
 		printNum(b);
-		num *r = addition(a,b);
+	//	num *r = addition(a,b);
 
-		printNum(r);
+	//	printNum(r);
 		//FIN TESTS
 
 		// printf(">");
@@ -111,10 +114,13 @@ num* addition(num *a, num *b)
 		mostSignifiant->suivant = newUnit;
 		mostSignifiant->chiffre = carry;
 		result->nombre = mostSignifiant;
-
+		mostSignifiant->suivant = NULL;
 	}
 	else
+	{
 		result->nombre = newUnit;
+		newUnit->suivant = NULL;
+	}
 
 	return result;
 }
@@ -136,21 +142,29 @@ int numCreator(char *str, num *toCreate)
 {
 	int i;
 	cell **c = &toCreate->nombre;
-
+	cell *precedent = NULL;
 	toCreate->positif=1;
+
 	//on stocke les nombres en little endian pour faciliter les calculs
 	for(i = strlen(str)-1; i >= 0; i--)
 	{
 		*c = malloc(sizeof(cell));
+
 		if(*c == NULL)
 		{
 			printf("memoire epuisee\n");
 			return -1;
 		}
 
+		(*c)->precedent = precedent;
+		precedent = *c;
+
 		(*c)->chiffre = str[i] - '0'; //transform 'char' to int ie. '5' to 5. fonctionne car on a seulement des nombres 0-9
-		c = &(*c)->suivant;
 		
+		if(i == 0)
+			toCreate->dernier = *c; //on garde une référence sur le dernier element pour imprimer efficacement le nombre
+
+		c = &(*c)->suivant;
 	}
 	*c = NULL;
 	return 0;
@@ -161,12 +175,15 @@ void printNum(num *toPrint)
 	if(!toPrint->positif) //nombre negatif
 		printf("-");
 
-	cell *nombre = toPrint->nombre;
-	while(nombre != NULL)
+	cell *nombre = toPrint->dernier;
+
+	//on peut afficher les nombres dans l'ordre 
+	while(nombre->precedent != NULL)
 	{
 		printf("%d",nombre->chiffre);
-		nombre = nombre->suivant;
+		nombre = nombre->precedent;
 	}
+	printf("%d",nombre->chiffre); //on affiche le dernier chiffre
 	printf("\n");
 }
 
