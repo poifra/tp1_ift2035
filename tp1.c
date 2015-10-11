@@ -35,13 +35,13 @@ int main()
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator("32892564417",a);
-		numCreator("12985148622",b);
+		numCreator("7021",a);
+		numCreator("2973",b);
 		printNum(a);
 		printNum(b);
-	//	num *r = addition(a,b);
+		num *r = addition(a,b);
 
-	//	printNum(r);
+		printNum(r);
 		//FIN TESTS
 
 		// printf(">");
@@ -74,55 +74,53 @@ int main()
 
 num* addition(num *a, num *b)
 {
-	num *result = malloc(sizeof(num));
-	result->positif = 1;
-
 	cell *cA = a->nombre;
 	cell *cB = b->nombre;
-	cell *resultat = malloc(sizeof(cell)); //TODO : memory check
-	resultat->suivant = NULL; //le digit le moins significatif a rien apres
-	int calculFini = 0;
-	int carry = 0;
+	cell *result = malloc(sizeof(cell));
+	num* r = malloc(sizeof(num));
+
+	if(result == NULL || r == NULL)
+	{
+		printf("memoire epuisee\n");
+		return NULL;
+	}
+
+	int fini = 0;
+	int intermediaire = 0;
+	int carry;
+
 	cell *newUnit;
 	do
 	{
-		calculFini = cA->suivant == NULL && cB->suivant == NULL;
-		int intermediaire = cA->chiffre + cB->chiffre + carry;
-		if(intermediaire > 9)
-		{
-			carry = 1;
-			intermediaire -= 10;
-		}
-		else
-			carry = 0;
+		intermediaire = cA->chiffre + cB->chiffre;
 
-		resultat->chiffre = intermediaire;
+		result->chiffre = intermediaire;
+
+		newUnit = malloc(sizeof(cell));
+
+		if(result == NULL || r == NULL)
+		{
+			printf("memoire epuisee\n");
+			return NULL;
+		}
+
+		newUnit->precedent = result;
+
+		result->suivant = newUnit;
+		result = newUnit;
+
 		cA = cA->suivant;
 		cB = cB->suivant;
-		newUnit = malloc(sizeof(cell));
-		newUnit->suivant = resultat;
-	}
-	while(!calculFini);	
 
-	if(carry) // on vérifie le digit le plus significatif
-		newUnit->chiffre++;
-
-	if(newUnit->chiffre > 9) //carry dans le chiffre le plus significatif
-	{
-		newUnit->chiffre -= 10;
-		cell *mostSignifiant = malloc(sizeof(cell));
-		mostSignifiant->suivant = newUnit;
-		mostSignifiant->chiffre = carry;
-		result->nombre = mostSignifiant;
-		mostSignifiant->suivant = NULL;
+		fini = cA == NULL && cB == NULL;
 	}
-	else
-	{
-		result->nombre = newUnit;
-		newUnit->suivant = NULL;
-	}
+	while(!fini);
 
-	return result;
+	newUnit->suivant = NULL;
+	r->positif = 1;
+	r->dernier = newUnit;
+
+	return r;
 }
 num soustraction(num a, num b)
 {
@@ -177,6 +175,9 @@ void printNum(num *toPrint)
 
 	cell *nombre = toPrint->dernier;
 
+	while(nombre->chiffre == 0)
+		nombre = nombre->precedent;
+	
 	//on peut afficher les nombres dans l'ordre 
 	while(nombre->precedent != NULL)
 	{
