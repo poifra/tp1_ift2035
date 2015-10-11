@@ -29,46 +29,57 @@ num soustraction(num, num);
 num* addition(num*, num*);
 num multiplication(num, num);
 
+//fonction ménage
+void superFree(num*);
+void recursiveSuperFree(cell*);
+
 int main()
 {
 	char *line;
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator("7021",a);
-		numCreator("2973",b);
+		numCreator("111",a);
+		numCreator("111",b);
 		printNum(a);
 		printNum(b);
 		num *r = addition(a,b);
 
 		printNum(r);
+		superFree(a);
+		superFree(b);
+		superFree(r);
 		//FIN TESTS
-
-		// printf(">");
-		// line = entreeDynamique(stdin);
-		// if(line == NULL)
+		// while(1)
 		// {
-		// 	printf("memoire epuisee");
-		// 	continue;
-		// }
-
-		// char varName = '\0';
-		// int i;
-		// for(i = 0; i < strlen(line); i++)
-		// {
-		// 	if(line[i] == '=')
+		// 	printf(">");
+		// 	line = entreeDynamique(stdin);
+		// 	if(line == NULL)
 		// 	{
-		// 		//il n'y a pas d'espace entre le = et le nom de la variable
-		// 		varName = line[i+1];
-		// 		break;
+		// 		printf("memoire epuisee");
+		// 		continue;
 		// 	}
-		// }
 
-		// if(varName != '\0')
-		// {
+		// 	char varName = '\0';
+		// 	int i;
+		// 	for(i = 0; i < strlen(line); i++)
+		// 	{
+		// 		if(line[i] == '=')
+		// 		{
+		// 			//il n'y a pas d'espace entre le = et le nom de la variable
+		// 			varName = line[i+1];
+		// 			break;
+		// 		}
+		// 	}
 
+		// 	if(varName != '\0')
+		// 	{
+
+		// 	}
+		// 	printf("%s\n",line); //test
+
+		// 	free(line);
 		// }
-		// printf("%s\n",line); //test
 	
 }
 
@@ -87,12 +98,19 @@ num* addition(num *a, num *b)
 
 	int fini = 0;
 	int intermediaire = 0;
-	int carry;
+	int carry = 0;
 
 	cell *newUnit;
 	do
 	{
-		intermediaire = cA->chiffre + cB->chiffre;
+		intermediaire = cA->chiffre + cB->chiffre + carry;
+		if(intermediaire > 9)
+		{
+			carry = 1;
+			intermediaire -= 10;
+		}
+		else
+			carry = 0;
 
 		result->chiffre = intermediaire;
 
@@ -133,6 +151,23 @@ num multiplication(num a, num b)
 	num result;
 	return result;
 }
+
+void superFree(num* toFree)
+{
+	cell *c = toFree->nombre;
+	if(c != NULL)
+		recursiveSuperFree(c);
+	free(toFree);
+}
+
+void recursiveSuperFree(cell* c)
+{
+	if(c->suivant == NULL)
+		free(c);
+	else
+		recursiveSuperFree(c->suivant);
+}
+
 
 //transform a string number to a linked list of infinite precision. 
 //retourne -1 si il n'y a pas assez de mémoire pour stocker le nombre
@@ -177,7 +212,7 @@ void printNum(num *toPrint)
 
 	while(nombre->chiffre == 0)
 		nombre = nombre->precedent;
-	
+
 	//on peut afficher les nombres dans l'ordre 
 	while(nombre->precedent != NULL)
 	{
