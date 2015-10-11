@@ -5,6 +5,7 @@
 //définition primitive des structures de gestion de nombres
 struct num { 
 	int positif; 
+	int longueur;
 	struct cell *nombre;
 	struct cell *dernier;
 };
@@ -39,17 +40,15 @@ int main()
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator("111",a);
-		numCreator("111",b);
-		printNum(a);
-		printNum(b);
+		numCreator("125",a);
+		numCreator("199",b);
 		num *r = addition(a,b);
 
 		printNum(r);
 		superFree(a);
 		superFree(b);
 		superFree(r);
-		//FIN TESTS
+	//	FIN TESTS
 		// while(1)
 		// {
 		// 	printf(">");
@@ -88,6 +87,7 @@ num* addition(num *a, num *b)
 	cell *cA = a->nombre;
 	cell *cB = b->nombre;
 	cell *result = malloc(sizeof(cell));
+
 	num* r = malloc(sizeof(num));
 
 	if(result == NULL || r == NULL)
@@ -96,11 +96,35 @@ num* addition(num *a, num *b)
 		return NULL;
 	}
 
+	if(a->longueur < b->longueur)
+	{
+		cell *temp = cA;
+		cA = cB;
+		cB = temp;
+	}
+
+	cell* dernier = b->dernier;
+	cell* newZero = NULL;
+	while(b->longueur < a->longueur) //ajustement de la longueur du plus petit nombre
+	{
+		newZero = malloc(sizeof(cell));
+		if(newZero == NULL)
+		{
+			printf("memoire epuisee\n");
+			return NULL;
+		}
+		newZero->precedent = dernier;
+		dernier->suivant = newZero;
+		dernier = newZero;
+		b->longueur++;
+	}
+
 	int fini = 0;
 	int intermediaire = 0;
 	int carry = 0;
 
-	cell *newUnit;
+
+	cell *newUnit = NULL;
 	do
 	{
 		intermediaire = cA->chiffre + cB->chiffre + carry;
@@ -134,9 +158,21 @@ num* addition(num *a, num *b)
 	}
 	while(!fini);
 
-	newUnit->suivant = NULL;
-	r->positif = 1;
-	r->dernier = newUnit;
+	if(carry)
+	{
+		cell* carryCell = malloc(sizeof(cell));
+		carryCell->chiffre = carry;
+		carryCell->precedent = result;
+		carryCell->suivant = NULL;
+		r->dernier = carryCell;
+		r->positif = 1;
+	}
+	else
+	{
+		newUnit->suivant = NULL;
+		r->positif = 1;
+		r->dernier = newUnit;
+	}
 
 	return r;
 }
@@ -177,6 +213,7 @@ int numCreator(char *str, num *toCreate)
 	cell **c = &toCreate->nombre;
 	cell *precedent = NULL;
 	toCreate->positif=1;
+	toCreate->longueur = 0;
 
 	//on stocke les nombres en little endian pour faciliter les calculs
 	for(i = strlen(str)-1; i >= 0; i--)
@@ -193,7 +230,7 @@ int numCreator(char *str, num *toCreate)
 		precedent = *c;
 
 		(*c)->chiffre = str[i] - '0'; //transform 'char' to int ie. '5' to 5. fonctionne car on a seulement des nombres 0-9
-		
+		toCreate->longueur++;
 		if(i == 0)
 			toCreate->dernier = *c; //on garde une référence sur le dernier element pour imprimer efficacement le nombre
 
@@ -210,8 +247,12 @@ void printNum(num *toPrint)
 
 	cell *nombre = toPrint->dernier;
 
-	while(nombre->chiffre == 0)
+	int position = toPrint->longueur; //cas particulier si le nombre est 0.
+	while(nombre->chiffre == 0 && position != 1)
+	{
 		nombre = nombre->precedent;
+		position--;
+	}
 
 	//on peut afficher les nombres dans l'ordre 
 	while(nombre->precedent != NULL)
