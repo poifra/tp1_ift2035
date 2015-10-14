@@ -40,8 +40,8 @@ int main()
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator("125",a);
-		numCreator("199",b);
+		numCreator("2454456456451849542040640624096504621213490855",a);
+		numCreator("2544564564518495420999544564564518495420",b);
 		num *r = addition(a,b);
 
 		printNum(r);
@@ -98,9 +98,12 @@ num* addition(num *a, num *b)
 
 	if(a->longueur < b->longueur)
 	{
-		cell *temp = cA;
-		cA = cB;
-		cB = temp;
+		printf("inverse\n");
+		num *temp = a;
+		a = b;
+		b = temp;
+		cA = a->nombre;
+		cB = b->nombre;
 	}
 
 	cell* dernier = b->dernier;
@@ -127,6 +130,7 @@ num* addition(num *a, num *b)
 	cell *newUnit = NULL;
 	do
 	{
+		fini = cA->suivant == NULL && cB->suivant == NULL;
 		intermediaire = cA->chiffre + cB->chiffre + carry;
 		if(intermediaire > 9)
 		{
@@ -138,23 +142,26 @@ num* addition(num *a, num *b)
 
 		result->chiffre = intermediaire;
 
-		newUnit = malloc(sizeof(cell));
+		if(!fini)
+			newUnit = malloc(sizeof(cell));
 
-		if(result == NULL || r == NULL)
+		if(result == NULL || newUnit == NULL)
 		{
 			printf("memoire epuisee\n");
 			return NULL;
 		}
 
-		newUnit->precedent = result;
 
-		result->suivant = newUnit;
-		result = newUnit;
+		if(!fini)
+		{
+			newUnit->precedent = result;
 
+			result->suivant = newUnit;
+			result = newUnit;
+		}
 		cA = cA->suivant;
 		cB = cB->suivant;
 
-		fini = cA == NULL && cB == NULL;
 	}
 	while(!fini);
 
