@@ -6,9 +6,16 @@
 struct num { 
 	int positif; 
 	int longueur;
+	int nbRef;
 	struct cell *nombre;
 	struct cell *dernier;
 };
+
+struct var {
+	char symbole;
+	struct num valeur;
+};
+
 struct cell {
 	int chiffre; 
 	struct cell *suivant;
@@ -26,9 +33,9 @@ void printNum(num*);
 void freeNumber(num*);
 
 //définition des opérateurs
-num soustraction(num, num);
+num* soustraction(num*, num*);
 num* addition(num*, num*);
-num multiplication(num, num);
+num* multiplication(num*, num*);
 
 //fonction ménage
 void superFree(num*);
@@ -40,10 +47,11 @@ int main()
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator("2454456456451849542040640624096504621213490855",a);
-		numCreator("2544564564518495420999544564564518495420",b);
+		numCreator("2855",a);
+		numCreator("954450",b);
 		num *r = addition(a,b);
 
+		printNum(a);
 		printNum(r);
 		superFree(a);
 		superFree(b);
@@ -98,7 +106,6 @@ num* addition(num *a, num *b)
 
 	if(a->longueur < b->longueur)
 	{
-		printf("inverse\n");
 		num *temp = a;
 		a = b;
 		b = temp;
@@ -183,15 +190,14 @@ num* addition(num *a, num *b)
 
 	return r;
 }
-num soustraction(num a, num b)
+num* soustraction(num *a, num *b)
 {
-	//utiliser la méthode des compléments?
-	num result;
+	num* result;
 	return result;
 }
-num multiplication(num a, num b)
+num* multiplication(num *a, num *b)
 {
-	num result;
+	num* result;
 	return result;
 }
 
@@ -281,7 +287,7 @@ char* entreeDynamique(FILE* input)
 	char c;
 
 	if(mot ==NULL)
-	return NULL;
+		return NULL;
 	
 	while(1)
 	{
