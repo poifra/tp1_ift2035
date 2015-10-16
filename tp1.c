@@ -25,7 +25,7 @@ struct cell {
 typedef struct num num; //permet d'utiliser la structure num comme un type
 typedef struct cell cell;
 
-int numCreator(char*, num*);
+int strToBigNum(char*, num*);
 
 char* entreeDynamique(FILE*);
 
@@ -47,8 +47,8 @@ int main()
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator(entreeDynamique(stdin),a);
-		numCreator(entreeDynamique(stdin),b);
+		strToBigNum(entreeDynamique(stdin),a);
+		strToBigNum(entreeDynamique(stdin),b);
 		num *r = soustraction(a,b);
 
 		printNum(r);
@@ -241,6 +241,31 @@ num* soustraction(num *a, num *b)
 num* multiplication(num *a, num *b)
 {
 	num* result;
+	int decalage = 0;
+	cell *cA = a->nombre;
+	cell *cB = b->nombre;
+	int intermediaire = 0;
+	do
+	{
+		//on ajuste le decalage avant le calcul
+		int i;
+		nombre newResult;
+		for(i = 0; i < decalage; i++)
+		{
+
+		}
+
+		do
+		{
+
+			cB = cB->suivant;
+		}
+		while(cB != NULL);
+
+		cA = cA->suivant;
+	}
+	while(cA != NULL);
+
 	return result;
 }
 
@@ -289,7 +314,7 @@ void* setupNombres(num *a, num *b)
 
 //transform a string number to a linked list of infinite precision. 
 //retourne -1 si il n'y a pas assez de mémoire pour stocker le nombre
-int numCreator(char *str, num *toCreate)
+int strToBigNum(char *str, num *toCreate)
 {
 	int i;
 	cell **c = &toCreate->nombre;
