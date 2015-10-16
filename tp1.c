@@ -30,7 +30,7 @@ int numCreator(char*, num*);
 char* entreeDynamique(FILE*);
 
 void printNum(num*);
-void freeNumber(num*);
+void* setupNombres(num*, num*);
 
 //définition des opérateurs
 num* soustraction(num*, num*);
@@ -47,11 +47,10 @@ int main()
 		// TESTS
 		num *a = malloc(sizeof(num));
 		num *b = malloc(sizeof(num));
-		numCreator("2855",a);
-		numCreator("954450",b);
-		num *r = addition(a,b);
+		numCreator(entreeDynamique(stdin),a);
+		numCreator(entreeDynamique(stdin),b);
+		num *r = soustraction(a,b);
 
-		printNum(a);
 		printNum(r);
 		superFree(a);
 		superFree(b);
@@ -92,6 +91,7 @@ int main()
 
 num* addition(num *a, num *b)
 {
+	setupNombres(a,b);
 	cell *cA = a->nombre;
 	cell *cB = b->nombre;
 	cell *result = malloc(sizeof(cell));
@@ -102,31 +102,6 @@ num* addition(num *a, num *b)
 	{
 		printf("memoire epuisee\n");
 		return NULL;
-	}
-
-	if(a->longueur < b->longueur)
-	{
-		num *temp = a;
-		a = b;
-		b = temp;
-		cA = a->nombre;
-		cB = b->nombre;
-	}
-
-	cell* dernier = b->dernier;
-	cell* newZero = NULL;
-	while(b->longueur < a->longueur) //ajustement de la longueur du plus petit nombre
-	{
-		newZero = malloc(sizeof(cell));
-		if(newZero == NULL)
-		{
-			printf("memoire epuisee\n");
-			return NULL;
-		}
-		newZero->precedent = dernier;
-		dernier->suivant = newZero;
-		dernier = newZero;
-		b->longueur++;
 	}
 
 	int fini = 0;
@@ -154,10 +129,9 @@ num* addition(num *a, num *b)
 
 		if(result == NULL || newUnit == NULL)
 		{
-			printf("memoire epuisee\n");
+			printf("memoire epuisee \n");
 			return NULL;
 		}
-
 
 		if(!fini)
 		{
@@ -179,21 +153,90 @@ num* addition(num *a, num *b)
 		carryCell->precedent = result;
 		carryCell->suivant = NULL;
 		r->dernier = carryCell;
-		r->positif = 1;
 	}
 	else
 	{
 		newUnit->suivant = NULL;
-		r->positif = 1;
 		r->dernier = newUnit;
 	}
+	r->positif = 1;
 
 	return r;
 }
 num* soustraction(num *a, num *b)
 {
-	num* result;
-	return result;
+
+	cell *result = malloc(sizeof(cell));
+	cell *newUnit;
+	cell *cA;
+	cell *cB;
+
+	int fini = 0;
+	int retenue = 0;
+	int intermediaire = 0;
+
+	num* r = malloc(sizeof(num));
+
+	if(numComparator(a,b) == -1)
+	{
+		num *temp = a;
+		a = b;
+		b = temp;
+		r->positif = 0;
+	}
+	else
+		r->positif = 1;
+
+	if(result == NULL || r == NULL)
+	{
+		printf("memoire epuisee");
+		return NULL;
+	}
+
+	setupNombres(a,b);
+
+	cA = a->nombre;
+	cB = b->nombre;
+	do
+	{
+		fini = cA->suivant == NULL && cB->suivant == NULL;
+		intermediaire = cA->chiffre - cB->chiffre;
+
+		if(intermediaire < 0)
+		{
+			cA->chiffre += 10;
+			if(cA->suivant != NULL)
+				cA->suivant->chiffre--;
+
+			intermediaire = cA->chiffre - cB->chiffre;
+		}
+		result->chiffre = intermediaire;
+
+		if(!fini)
+			newUnit = malloc(sizeof(cell));
+
+		if(result == NULL || newUnit == NULL)
+		{
+			printf("memoire epuisee \n");
+			return NULL;
+		}
+
+		if(!fini)
+		{
+			newUnit->precedent = result;
+
+			result->suivant = newUnit;
+			result = newUnit;
+		}
+
+		cA = cA->suivant;
+		cB = cB->suivant;
+	}
+	while(!fini);
+
+	newUnit->suivant = NULL;
+	r->dernier = newUnit;
+	return r;
 }
 num* multiplication(num *a, num *b)
 {
@@ -217,6 +260,32 @@ void recursiveSuperFree(cell* c)
 		recursiveSuperFree(c->suivant);
 }
 
+//valide les nombres entrés et ajuste leur longueur, au besoin
+void* setupNombres(num *a, num *b)
+{
+	if(a->longueur < b->longueur)
+	{
+		num *temp = a;
+		a = b;
+		b = temp;
+	}
+
+	cell* dernier = b->dernier;
+	cell* newZero = NULL;
+	while(b->longueur < a->longueur) //ajustement de la longueur du plus petit nombre
+	{
+		newZero = malloc(sizeof(cell));
+		if(newZero == NULL)
+		{
+			printf("memoire epuisee \n");
+			return NULL;
+		}
+		newZero->precedent = dernier;
+		dernier->suivant = newZero;
+		dernier = newZero;
+		b->longueur++;
+	}
+}
 
 //transform a string number to a linked list of infinite precision. 
 //retourne -1 si il n'y a pas assez de mémoire pour stocker le nombre
@@ -225,11 +294,13 @@ int numCreator(char *str, num *toCreate)
 	int i;
 	cell **c = &toCreate->nombre;
 	cell *precedent = NULL;
-	toCreate->positif=1;
+	int positif = str[0] != '-';
+	toCreate->positif= positif;
 	toCreate->longueur = 0;
 
 	//on stocke les nombres en little endian pour faciliter les calculs
-	for(i = strlen(str)-1; i >= 0; i--)
+	//si le nombre est positif, 1-positif = 0
+	for(i = strlen(str)-1; i >= 1 - positif; i--)
 	{
 		*c = malloc(sizeof(cell));
 
@@ -250,6 +321,44 @@ int numCreator(char *str, num *toCreate)
 		c = &(*c)->suivant;
 	}
 	*c = NULL;
+	return 0;
+}
+
+/*
+compare les quantités de chaque nombre 
+retourne 0 si les nombres sont égaux,
+retourne 1 si a > b.
+retourne -1 si a < b.
+*/
+int numComparator(num *a, num *b)
+{
+	if(a->positif > b->positif)
+		return 1;
+	if(a->positif < b->positif)
+		return -1;
+
+	//les nombres ont le meme signe
+	if(a->longueur > b->longueur)
+		return a->positif ? 1 : -1;
+	if(a->longueur < b->longueur)
+		return a->positif ? -1 : 1;
+
+	//les deux nombres on la meme longueur et le meme signe, on compare chaque
+	//en commencant par la plus singificative.
+	cell *cA = a->dernier;
+	cell *cB = b->dernier;
+
+	while(cA->precedent != NULL)
+	{
+		if(cA->chiffre > cB->chiffre)
+			return a->positif ? 1 : -1;
+		if(cA->chiffre < cB->chiffre)
+			 return a->positif ? -1 : 1;
+
+		cA = cA->precedent;
+		cB = cB->precedent;
+	}
+
 	return 0;
 }
 
