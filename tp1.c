@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+//parce que c'est penible le copy/paste
+#define memcheck(x) if(x == NULL) {\
+					printf("memoire epuisee \n");\
+					return NULL; }
+
 //définition primitive des structures de gestion de nombres
 struct num { 
 	int positif; 
@@ -45,16 +51,20 @@ int main()
 {
 	char *line;
 		// TESTS
-		num *a = malloc(sizeof(num));
-		num *b = malloc(sizeof(num));
-		strToBigNum(entreeDynamique(stdin),a);
-		strToBigNum(entreeDynamique(stdin),b);
-		num *r = soustraction(a,b);
+	num *a = malloc(sizeof(num));
+	num *b = malloc(sizeof(num));
+	strToBigNum(entreeDynamique(stdin),a);
+	strToBigNum(entreeDynamique(stdin),b);
+	num *r = soustraction(a,b);
 
+	if(r != NULL)
 		printNum(r);
-		superFree(a);
-		superFree(b);
-		superFree(r);
+	else
+		printf("mauvais calcul :(");
+
+	superFree(a);
+	superFree(b);
+	superFree(r);
 	//	FIN TESTS
 		// while(1)
 		// {
@@ -98,21 +108,20 @@ num* addition(num *a, num *b)
 
 	num* r = malloc(sizeof(num));
 
-	if(result == NULL || r == NULL)
-	{
-		printf("memoire epuisee\n");
-		return NULL;
-	}
+	memcheck(r)
+	memcheck(result)
+
+	r->longueur = 0;
 
 	int fini = 0;
 	int intermediaire = 0;
 	int carry = 0;
 
-
 	cell *newUnit = NULL;
 	do
 	{
 		fini = cA->suivant == NULL && cB->suivant == NULL;
+
 		intermediaire = cA->chiffre + cB->chiffre + carry;
 		if(intermediaire > 9)
 		{
@@ -125,16 +134,10 @@ num* addition(num *a, num *b)
 		result->chiffre = intermediaire;
 
 		if(!fini)
+		{
 			newUnit = malloc(sizeof(cell));
+			memcheck(newUnit)
 
-		if(result == NULL || newUnit == NULL)
-		{
-			printf("memoire epuisee \n");
-			return NULL;
-		}
-
-		if(!fini)
-		{
 			newUnit->precedent = result;
 
 			result->suivant = newUnit;
@@ -142,40 +145,58 @@ num* addition(num *a, num *b)
 		}
 		cA = cA->suivant;
 		cB = cB->suivant;
+		r->longueur++;
 
 	}
 	while(!fini);
 
+
 	if(carry)
 	{
 		cell* carryCell = malloc(sizeof(cell));
+
+		memcheck(carryCell)
+
 		carryCell->chiffre = carry;
 		carryCell->precedent = result;
 		carryCell->suivant = NULL;
 		r->dernier = carryCell;
+		r->longueur++;
 	}
 	else
 	{
-		newUnit->suivant = NULL;
-		r->dernier = newUnit;
+		if(newUnit == NULL) //cas particulier ou on a pas de carry et 1 seul digit dans chaque operande ex : 2+2
+		{
+			result->suivant = NULL;
+			r->dernier = result;
+		}
+		else
+		{
+			newUnit->suivant = NULL;
+			r->dernier = newUnit;
+		}
 	}
 	r->positif = 1;
-
 	return r;
 }
 num* soustraction(num *a, num *b)
 {
 
 	cell *result = malloc(sizeof(cell));
-	cell *newUnit;
-	cell *cA;
-	cell *cB;
+	cell *newUnit = NULL;
+	cell *cA = NULL;
+	cell *cB = NULL;
 
 	int fini = 0;
 	int retenue = 0;
 	int intermediaire = 0;
 
 	num* r = malloc(sizeof(num));
+
+	memcheck(result)
+	memcheck(r)
+
+	r->longueur = 0;
 
 	if(numComparator(a,b) == -1)
 	{
@@ -186,12 +207,6 @@ num* soustraction(num *a, num *b)
 	}
 	else
 		r->positif = 1;
-
-	if(result == NULL || r == NULL)
-	{
-		printf("memoire epuisee");
-		return NULL;
-	}
 
 	setupNombres(a,b);
 
@@ -213,60 +228,116 @@ num* soustraction(num *a, num *b)
 		result->chiffre = intermediaire;
 
 		if(!fini)
+		{
 			newUnit = malloc(sizeof(cell));
+			memcheck(newUnit)
 
-		if(result == NULL || newUnit == NULL)
-		{
-			printf("memoire epuisee \n");
-			return NULL;
-		}
-
-		if(!fini)
-		{
 			newUnit->precedent = result;
 
 			result->suivant = newUnit;
 			result = newUnit;
 		}
-
+		r->longueur++;
 		cA = cA->suivant;
 		cB = cB->suivant;
 	}
 	while(!fini);
 
-	newUnit->suivant = NULL;
-	r->dernier = newUnit;
+	if(newUnit == NULL)
+	{
+		result->suivant = NULL;
+		r->dernier = result;
+	}
+	else
+	{
+		newUnit->suivant = NULL;
+		r->dernier = newUnit;
+	}
 	return r;
 }
 num* multiplication(num *a, num *b)
 {
-	num* result;
-	int decalage = 0;
 	cell *cA = a->nombre;
 	cell *cB = b->nombre;
+	cell *result = NULL;
+
+	num* r = malloc(sizeof(num));
+
+	memcheck(r)
+
+	int finiCB = 0;
+	int finiCA = 0;
 	int intermediaire = 0;
+	int carry = 0;
+	int chiffreCourant = 0;
+
+	cell *newUnit = NULL;
 	do
 	{
-		//on ajuste le decalage avant le calcul
-		int i;
-		nombre newResult;
-		for(i = 0; i < decalage; i++)
-		{
+		//TODO : ajuster les 0
+		
+		chiffreCourant = cB->chiffre;
 
-		}
+		printf("chiffre courant %d\n",chiffreCourant);
+		cA = a->nombre;
+		result = malloc(sizeof(cell));
+		memcheck(result);
 
 		do
-		{
+		{ //multiplication en tant que tel
+			finiCA = cA->suivant == NULL;
+			intermediaire = chiffreCourant * cA->chiffre + carry;
+			carry = 0;
+			while(intermediaire > 9)
+			{
+				carry++;
+				intermediaire -= 10;
+			}
 
-			cB = cB->suivant;
+			result->chiffre = intermediaire;
+
+			if(!finiCA)
+				newUnit = malloc(sizeof(cell));
+
+			memcheck(newUnit)
+
+			if(!finiCA)
+			{
+				newUnit->precedent = result;
+
+				result->suivant = newUnit;
+				result = newUnit;
+			}
+			cA = cA->suivant;
+
 		}
-		while(cB != NULL);
+		while(!finiCA);
 
-		cA = cA->suivant;
+		//ajuster le carry si il faut
+		if(carry)
+		{
+			cell* carryCell = malloc(sizeof(cell));
+
+			memcheck(carryCell)
+
+			carryCell->chiffre = carry;
+			carryCell->precedent = result;
+			carryCell->suivant = NULL;
+			r->dernier = carryCell;
+		}
+		else
+		{
+			newUnit->suivant = NULL;
+			r->dernier = newUnit;
+		}
+		r->positif = 1;
+		printNum(r);
+		cB = cB->suivant;
+		finiCB = cB == NULL;
 	}
-	while(cA != NULL);
+	while(!finiCB);
 
-	return result;
+	return r;
 }
 
 void superFree(num* toFree)
@@ -300,11 +371,7 @@ void* setupNombres(num *a, num *b)
 	while(b->longueur < a->longueur) //ajustement de la longueur du plus petit nombre
 	{
 		newZero = malloc(sizeof(cell));
-		if(newZero == NULL)
-		{
-			printf("memoire epuisee \n");
-			return NULL;
-		}
+		memcheck(newZero)
 		newZero->precedent = dernier;
 		dernier->suivant = newZero;
 		dernier = newZero;
@@ -331,7 +398,8 @@ int strToBigNum(char *str, num *toCreate)
 
 		if(*c == NULL)
 		{
-			printf("memoire epuisee\n");
+			printf("memoire epuisee \n");
+			superFree(toCreate);
 			return -1;
 		}
 
@@ -368,7 +436,11 @@ int numComparator(num *a, num *b)
 	if(a->longueur < b->longueur)
 		return a->positif ? -1 : 1;
 
-	//les deux nombres on la meme longueur et le meme signe, on compare chaque
+	if(a->longueur == 1 && b->longueur == 1)
+	{
+		return (a->dernier->chiffre) > (b->dernier->chiffre) ? 1 : -1;
+	}
+	//les deux nombres on la meme longueur > 1 et le meme signe, on compare chaque
 	//en commencant par la plus singificative.
 	cell *cA = a->dernier;
 	cell *cB = b->dernier;
@@ -420,8 +492,7 @@ char* entreeDynamique(FILE* input)
 	int taille=0;
 	char c;
 
-	if(mot ==NULL)
-		return NULL;
+	memcheck(mot)
 	
 	while(1)
 	{
@@ -437,8 +508,7 @@ char* entreeDynamique(FILE* input)
 		{
 			defaut+=32;
 			mot = realloc(mot, sizeof(char)*defaut);
-			if(mot == NULL)
-				return NULL;
+			memcheck(mot)
 		}
 	}
 	if(taille > defaut)
