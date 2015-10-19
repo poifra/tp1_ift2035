@@ -108,8 +108,6 @@ num* addition(num *a, num *b)
 
 	cell *cA = a->nombre;
 	cell *cB = b->nombre;
-	printNum(a);
-	printNum(b);
 
 	if(!cA)
 	{
@@ -163,13 +161,12 @@ num* addition(num *a, num *b)
 			carry = 0;
 
 		result->chiffre = intermediaire;
-		printf("int= %d\n", result->chiffre);
 		if(!fini)
 		{
 			//ajustement des pointeurs pour le prochain round si pertinent
 			newUnit = malloc(sizeof(cell));
 			memcheck(newUnit)
-
+			newUnit->suivant = NULL;
 			newUnit->precedent = result;
 
 			result->suivant = newUnit;
@@ -181,6 +178,17 @@ num* addition(num *a, num *b)
 		r->longueur++;
 	}
 	
+	if(newUnit == NULL) //cas particulier ou on a pas de carry et 1 seul digit dans chaque operande ex : 2+2
+	{
+		result->suivant = NULL;
+		r->dernier = result;
+	}
+	else
+	{
+		newUnit->suivant = NULL;
+		r->dernier = newUnit;
+	}
+
 	if(carry)
 	{
 		cell* carryCell = malloc(sizeof(cell));
@@ -188,24 +196,14 @@ num* addition(num *a, num *b)
 		memcheck(carryCell)
 
 		carryCell->chiffre = carry;
-		carryCell->precedent = result;
+		carryCell->precedent = newUnit;
+		newUnit->suivant = carryCell;
 		carryCell->suivant = NULL;
+
 		r->dernier = carryCell;
 		r->longueur++;
 	}
-	else
-	{
-		if(newUnit == NULL) //cas particulier ou on a pas de carry et 1 seul digit dans chaque operande ex : 2+2
-		{
-			result->suivant = NULL;
-			r->dernier = result;
-		}
-		else
-		{
-			newUnit->suivant = NULL;
-			r->dernier = newUnit;
-		}
-	}
+
 	r->positif = 1;
 	return r;
 }
