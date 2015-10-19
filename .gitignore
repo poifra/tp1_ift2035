@@ -30,3 +30,9 @@
 
 # Debug files
 *.dSYM/
+
+# LaTeX files
+*.aux
+*.log
+*.synctex.gz
+*.toc
