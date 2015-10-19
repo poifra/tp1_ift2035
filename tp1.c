@@ -53,9 +53,12 @@ int main()
 		// TESTS
 	num *a = malloc(sizeof(num));
 	num *b = malloc(sizeof(num));
+	num *c = malloc(sizeof(num));
+
 	strToBigNum(entreeDynamique(stdin),a);
 	strToBigNum(entreeDynamique(stdin),b);
-	num *r = soustraction(a,b);
+	//strToBigNum(entreeDynamique(stdin),c);
+	num *r = multiplication(a,b);
 
 	if(r != NULL)
 		printNum(r);
@@ -102,8 +105,23 @@ int main()
 num* addition(num *a, num *b)
 {
 	setupNombres(a,b);
+
 	cell *cA = a->nombre;
 	cell *cB = b->nombre;
+	printNum(a);
+	printNum(b);
+
+	if(!cA)
+	{
+		printf("erreur nombre a");
+		return NULL;
+	}
+	if(!cB)
+	{
+		printf("erreur nombre b");
+		return NULL;
+	}
+
 	cell *result = malloc(sizeof(cell));
 
 	num* r = malloc(sizeof(num));
@@ -118,11 +136,24 @@ num* addition(num *a, num *b)
 	int carry = 0;
 
 	cell *newUnit = NULL;
-	do
+	r->nombre = result;
+	while(!fini)
 	{
 		fini = cA->suivant == NULL && cB->suivant == NULL;
 
+		if( cA->suivant != NULL && cB->suivant == NULL)
+		{
+			printf("a pas null b null\n");
+			printNum(b);
+		}
+		if( cA->suivant == NULL && cB->suivant != NULL)
+		{
+			printf("a null b pas null\n");
+			printNum(a);
+		}
+
 		intermediaire = cA->chiffre + cB->chiffre + carry;
+
 		if(intermediaire > 9)
 		{
 			carry = 1;
@@ -132,9 +163,10 @@ num* addition(num *a, num *b)
 			carry = 0;
 
 		result->chiffre = intermediaire;
-
+		printf("int= %d\n", result->chiffre);
 		if(!fini)
 		{
+			//ajustement des pointeurs pour le prochain round si pertinent
 			newUnit = malloc(sizeof(cell));
 			memcheck(newUnit)
 
@@ -143,14 +175,12 @@ num* addition(num *a, num *b)
 			result->suivant = newUnit;
 			result = newUnit;
 		}
+
 		cA = cA->suivant;
 		cB = cB->suivant;
 		r->longueur++;
-
 	}
-	while(!fini);
-
-
+	
 	if(carry)
 	{
 		cell* carryCell = malloc(sizeof(cell));
@@ -209,9 +239,9 @@ num* soustraction(num *a, num *b)
 		r->positif = 1;
 
 	setupNombres(a,b);
-
 	cA = a->nombre;
 	cB = b->nombre;
+	r->nombre = result;
 	do
 	{
 		fini = cA->suivant == NULL && cB->suivant == NULL;
@@ -229,6 +259,7 @@ num* soustraction(num *a, num *b)
 
 		if(!fini)
 		{
+			//ajustement des pointeurs pour le prochain round si pertinent
 			newUnit = malloc(sizeof(cell));
 			memcheck(newUnit)
 
@@ -261,27 +292,35 @@ num* multiplication(num *a, num *b)
 	cell *cB = b->nombre;
 	cell *result = NULL;
 
-	num* r = malloc(sizeof(num));
+	num *listeToAdd = malloc(b->longueur * sizeof(num));
+	memcheck(listeToAdd)
+
+	num *r = malloc(sizeof(num));
 
 	memcheck(r)
+
+	r->longueur = 0;
 
 	int finiCB = 0;
 	int finiCA = 0;
 	int intermediaire = 0;
 	int carry = 0;
 	int chiffreCourant = 0;
+	int decalageUnit = 0;
 
 	cell *newUnit = NULL;
 	do
-	{
-		//TODO : ajuster les 0
-		
+	{	
 		chiffreCourant = cB->chiffre;
-
-		printf("chiffre courant %d\n",chiffreCourant);
 		cA = a->nombre;
 		result = malloc(sizeof(cell));
 		memcheck(result);
+		result->suivant = NULL;
+		result->precedent = NULL;
+		r->nombre = result;
+		r->longueur = 0;
+		r->positif = 1;
+		carry = 0;
 
 		do
 		{ //multiplication en tant que tel
@@ -297,22 +336,32 @@ num* multiplication(num *a, num *b)
 			result->chiffre = intermediaire;
 
 			if(!finiCA)
+			{ 
+				//ajustement des pointeurs pour le prochain round si pertinent
 				newUnit = malloc(sizeof(cell));
 
-			memcheck(newUnit)
-
-			if(!finiCA)
-			{
+				memcheck(newUnit)
 				newUnit->precedent = result;
 
 				result->suivant = newUnit;
 				result = newUnit;
 			}
 			cA = cA->suivant;
-
+			r->longueur++;
 		}
 		while(!finiCA);
 
+	
+		if(newUnit == NULL) //cas particulier 1 seul digit dans chaque operande ex : 2*2
+		{
+			result->suivant = NULL;
+			r->dernier = result;
+		}
+		else
+		{
+			newUnit->suivant = NULL;
+			r->dernier = newUnit;
+		}
 		//ajuster le carry si il faut
 		if(carry)
 		{
@@ -322,22 +371,61 @@ num* multiplication(num *a, num *b)
 
 			carryCell->chiffre = carry;
 			carryCell->precedent = result;
+			result->suivant = carryCell;
 			carryCell->suivant = NULL;
 			r->dernier = carryCell;
+			r->longueur++;
 		}
-		else
+
+		// ajuster les 0
+		cell *newZero = NULL;
+		cell *currentZero = NULL;
+		cell *premierZero = NULL;
+		int i = 0;
+		if(decalageUnit > 0)
 		{
-			newUnit->suivant = NULL;
-			r->dernier = newUnit;
+			currentZero = malloc(sizeof(cell));
+			memcheck(currentZero)
+			currentZero->chiffre = 0;
+			currentZero->precedent = NULL;
+			premierZero = currentZero;
+
+			for(i = 1; i < decalageUnit; i++)
+			{
+				newZero = malloc(sizeof(cell));
+				memcheck(newZero);
+				newZero->precedent = currentZero;
+				newZero->chiffre = 0;
+				currentZero->suivant = newZero;
+				currentZero = newZero;
+			}
+
+			r->nombre->precedent = currentZero;
+			currentZero->suivant = r->nombre;
+			r->nombre = premierZero;
+
+			r->longueur += i;
 		}
-		r->positif = 1;
-		printNum(r);
+		//fin ajustement 0
+
+		listeToAdd[decalageUnit] = *r;
 		cB = cB->suivant;
 		finiCB = cB == NULL;
+		decalageUnit++;
 	}
 	while(!finiCB);
+	int j;
+	num* somme = malloc(sizeof(num));
+	memcheck(somme)
+	strToBigNum("0",somme);
 
-	return r;
+	for(j = 0; j < b->longueur; j++)
+	{
+		somme = addition(somme,&listeToAdd[j]);
+	}
+	
+	free(listeToAdd);
+	return somme;
 }
 
 void superFree(num* toFree)
@@ -346,12 +434,16 @@ void superFree(num* toFree)
 	if(c != NULL)
 		recursiveSuperFree(c);
 	free(toFree);
+	toFree = NULL;
 }
 
 void recursiveSuperFree(cell* c)
 {
 	if(c->suivant == NULL)
+	{
 		free(c);
+		c = NULL;
+	}
 	else
 		recursiveSuperFree(c->suivant);
 }
@@ -359,6 +451,7 @@ void recursiveSuperFree(cell* c)
 //valide les nombres entrés et ajuste leur longueur, au besoin
 void* setupNombres(num *a, num *b)
 {
+
 	if(a->longueur < b->longueur)
 	{
 		num *temp = a;
@@ -366,17 +459,22 @@ void* setupNombres(num *a, num *b)
 		b = temp;
 	}
 
+
 	cell* dernier = b->dernier;
 	cell* newZero = NULL;
 	while(b->longueur < a->longueur) //ajustement de la longueur du plus petit nombre
 	{
 		newZero = malloc(sizeof(cell));
 		memcheck(newZero)
+		newZero->chiffre = 0;
 		newZero->precedent = dernier;
 		dernier->suivant = newZero;
 		dernier = newZero;
+		b->dernier = dernier;
 		b->longueur++;
 	}
+	dernier->suivant = NULL;
+	
 }
 
 //transform a string number to a linked list of infinite precision. 
@@ -466,12 +564,12 @@ void printNum(num *toPrint)
 
 	cell *nombre = toPrint->dernier;
 
-	int position = toPrint->longueur; //cas particulier si le nombre est 0.
+/*	int position = toPrint->longueur; //cas particulier si le nombre est 0.
 	while(nombre->chiffre == 0 && position != 1)
 	{
 		nombre = nombre->precedent;
 		position--;
-	}
+	}*/
 
 	//on peut afficher les nombres dans l'ordre 
 	while(nombre->precedent != NULL)
