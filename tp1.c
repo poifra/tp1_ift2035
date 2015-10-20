@@ -71,6 +71,65 @@ num* multiplication(num*, num*);
 void superFree(num*);
 void recursiveSuperFree(cell*);
 
+void testThatShit()
+{
+	num* a = malloc(sizeof(num));
+	num* b = malloc(sizeof(num));
+	num* c = malloc(sizeof(num));
+	num* d = malloc(sizeof(num));
+	num* e = malloc(sizeof(num));
+	num* f = malloc(sizeof(num));
+
+	num* r = malloc(sizeof(num));
+	num* r1 = malloc(sizeof(num));
+	num* r2 = malloc(sizeof(num));
+	num* r3 = malloc(sizeof(num));
+	num* r4 = malloc(sizeof(num));
+
+	strToBigNum("991555965646546445234",a);
+	strToBigNum("949454564654101023112",b);
+	strToBigNum("3789879876542596301014",c);
+	strToBigNum("5409048544101412269699",d);
+	strToBigNum("11121454111111189898001",e);
+	strToBigNum("79131304837428642684260",f);
+	
+	r=addition(e,f);
+	r1=soustraction(b,a);
+	r2=multiplication(c,e);
+	//printNum(r);
+	//printNum(r1);
+	//printNum(r2);
+	r3=multiplication(r1,r2);
+//	printNum(r3);
+	r4=soustraction(r3,r2);
+//	printf("patate\n");
+//	printNum(r4);
+	r=soustraction(f,r4);
+/*	r1=multiplication(a,b);
+	r2=soustraction(c,f);
+	r3=soustraction(d,c);
+	r4=multiplication(r3,r1);*/
+//	printNum(r);
+//	printNum(r1);
+//	printNum(r2);
+	//printNum(r3);
+	//printNum(r4);
+
+	superFree(a);
+	superFree(b);
+	superFree(c);
+	superFree(d);
+	superFree(e);
+	superFree(f);
+	superFree(r);
+	superFree(r1);
+	superFree(r2);
+	superFree(r3);
+	superFree(r4);
+	printf("on a fini :)\n");
+
+}
+
 /**
  * Point d'entrée du programme.
  * 
@@ -79,6 +138,7 @@ void recursiveSuperFree(cell*);
  */
 int main() 
 {
+	testThatShit();
 	printf("> ");
 	
 	char* entree = entreeDynamique(stdin);
@@ -269,6 +329,9 @@ num* addition(num *a, num *b) {
  * Opération de soustraction.
  */
 num* soustraction(num *a, num *b) {
+	printf("on soustrait\n");
+	printNum(a);
+	printNum(b);
 	cell *result = malloc(sizeof(cell));
 	cell *newUnit = NULL;
 	cell *cA = NULL;
@@ -665,16 +728,15 @@ void printNum(num *toPrint) {
 		// Nombre négatif.
 		printf("-");
 	}
-	
 	cell *nombre = toPrint->dernier;
 
-	/*int position = toPrint->longueur;
+	int position = toPrint->longueur;
 	
 	// Cas particulier si le nombre est 0.
 	while(nombre->chiffre == 0 && position != 1) {
 		nombre = nombre->precedent;
 		position--;
-	}*/
+	}
 	
 	// On peut afficher les nombres dans l'ordre. 
 	while(nombre->precedent != NULL) {
