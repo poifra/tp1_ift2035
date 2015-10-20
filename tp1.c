@@ -77,8 +77,7 @@ void recursiveSuperFree(cell*);
  * Invite l'utilisateur à entrer des commandes au format
  * postfixe (ex: 3 2 + 5 * =a).
  */
-int main() 
-{
+int main() {
 	printf("> ");
 	
 	char* entree = entreeDynamique(stdin);
@@ -86,27 +85,27 @@ int main()
 	char* partie = strtok(entree, " ");
 	
 	pile *commandes = malloc(sizeof(pile));
-	if(commandes == NULL)
-	{
+    
+	if(commandes == NULL) {
 		printf("memoire epuisee");
 		return -1;
 	}
-	pile_init(commandes);
 	
-	do {
-		if(strcmp(partie, "+") || strcmp(partie, "-") || strcmp(partie, "*")) 
-		{
+    pile_init(commandes);
+	
+	do {      
+		if(strcmp(partie, "+") == 0 || strcmp(partie, "-") == 0 || strcmp(partie, "*") == 0) {
 			if(pile_count(commandes) == 2) {
 				num *r;
 				
 				num* b = pile_pop(commandes);
 				num* a = pile_pop(commandes);
-				
-				if(strcmp(partie, "+")) {
+                
+				if(strcmp(partie, "+") == 0) {
 					r = addition(a, b);
-				} else if(strcmp(partie, "-")) {
+				} else if(strcmp(partie, "-") == 0) {
 					r = soustraction(a, b);
-				} else if(strcmp(partie, "*")) {
+				} else if(strcmp(partie, "*") == 0) {
 					r = multiplication(a, b);
 				}
 				
@@ -119,15 +118,10 @@ int main()
 				}
 				
 				pile_push(commandes, r);
-				
-				// On peut supprimer ça aussi.
-				superFree(r);
 			} else {
 				printf("Erreur: il manque une entree pour faire une operation !\n");
 			}
-		} 
-		else if(partie[0] == '=' && sizeof(partie) / sizeof(char) == 2 && /*(int) partie[1] % 32 >= 0 && (int) partie[1] % 32 <= 25*/partie[1] == 'a') 
-		{
+		} else if(partie[0] == '=' && /*sizeof(partie) / sizeof(char) == 2 && (int) partie[1] % 32 >= 0 && (int) partie[1] % 32 <= 25*/partie[1] == 'a') {
 			// Assignation de variable, on assigne et on continue comme si de rien n'était.
 			
 			if(pile_count(commandes) > 0) {
@@ -135,14 +129,10 @@ int main()
 			} else {
 				printf("Que voulez-vous assigner ? Il manque quelque chose...\n");
 			}
-		} 
-		else if(/*(int) partie % 32 >= 0 && (int) partie % 32 <= 25*/strcmp(partie, "a")) 
-		{
+		} else if(/*(int) partie % 32 >= 0 && (int) partie % 32 <= 25*/strcmp(partie, "a") == 0) {
 			// Variable, on prend sa valeur dans la pile d'opérations.
 			pile_push(commandes, variables[/*(int) partie % 32*/0]);
-		} 
-		else 
-		{
+		} else /* TODO: if(isfloat()) */ {
 			// Valeur, on la met dans un nombre à précision infinie et on met sa référence dans la pile.
 			num *valeur = malloc(sizeof(num));
 			strToBigNum(partie, valeur);
@@ -372,7 +362,7 @@ num* multiplication(num *a, num *b) {
 
 	cell *newUnit = NULL;
 	
-	do {    
+	do {
 		chiffreCourant = cB->chiffre;
 		cA = a->nombre;
 		
