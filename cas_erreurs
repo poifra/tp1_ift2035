@@ -1,15 +1,6 @@
 Entrées qui causent des erreurs
 ----------------------------------------
 
-4 6 + : SF
-4 7 + : SF
-(...)
-4 10 + : Refonctionne tout d'un coup O_o
-
-
-4 10 - : -06 (avec le zéro)
-
-
 2 =a =b
 a b + : FS
 (alors que)

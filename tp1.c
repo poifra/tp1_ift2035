@@ -39,7 +39,7 @@ typedef struct cell cell;
 
 // Inspiré de "http://groups.csail.mit.edu/graphics/classes/6.837/F04/cpp_notes/stack1.html".
 struct pile {
-	// Maximum de 100 nombres en pile. À modifier au besoin ?
+	// Maximum de 100 nombres en pile. À modifier au besoin.
 	num* data[100];
 	int size;
 };
@@ -276,7 +276,7 @@ num* addition(num *a, num *b) {
 	if(carry) {
 		cell* carryCell = malloc(sizeof(cell));
 
-		memcheck(carryCell)
+		memcheck(carryCell);
 
 		carryCell->chiffre = carry;
 		carryCell->precedent = result;
@@ -382,7 +382,7 @@ num* multiplication(num *a, num *b) {
 	cell *result = NULL;
 
 	num *listeToAdd = malloc(b->longueur * sizeof(num));
-	memcheck(listeToAdd)
+	memcheck(listeToAdd);
 
 	num *r = malloc(sizeof(num));
 
@@ -434,7 +434,7 @@ num* multiplication(num *a, num *b) {
 				// Ajustement des pointeurs pour le prochain round si pertinent.
 				newUnit = malloc(sizeof(cell));
 
-				memcheck(newUnit)
+				memcheck(newUnit);
 				newUnit->precedent = result;
 
 				result->suivant = newUnit;
@@ -458,7 +458,7 @@ num* multiplication(num *a, num *b) {
 		if(carry) {
 			cell* carryCell = malloc(sizeof(cell));
 
-			memcheck(carryCell)
+			memcheck(carryCell);
 
 			carryCell->chiffre = carry;
 			carryCell->precedent = result;
@@ -754,7 +754,7 @@ char* entreeDynamique(FILE* input) {
 		taille++;
 		
 		mot = realloc(mot, sizeof(char) * taille);
-		memcheck(mot)
+		memcheck(mot);
 	}
 	
 	// Pour terminer la string.
