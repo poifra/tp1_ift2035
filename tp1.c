@@ -23,11 +23,6 @@ struct num {
 	struct cell *dernier;
 };
 
-struct var {
-	char symbole;
-	struct num valeur;
-};
-
 struct cell {
 	int chiffre; 
 	struct cell *suivant;
@@ -206,7 +201,24 @@ void main() {
 /**
  * Opération d'addition.
  */
-num* addition(num *a, num *b) {
+num* addition(num *a, num *b) 
+{
+	if(a->positif == 0 && b->positif == 1)
+	{
+		a->positif = 1;
+		return soustraction(b,a);
+	}
+
+	if(a->positif == 1 && b->positif == 0)
+	{
+		b->positif = 1;
+		return soustraction(a,b);
+	}
+	if(a->positif == 0 && b->positif == 0)
+	{
+		b->positif = 1;
+		return soustraction(a,b);
+	}
 	setupNombres(a,b);
 
 	cell *cA = a->nombre;
@@ -518,13 +530,19 @@ num* multiplication(num *a, num *b) {
 	num* somme = malloc(sizeof(num));
 	memcheck(somme);
 	strToBigNum("0", somme);
-
 	for(j = 0; j < b->longueur; j++) {
 		somme = addition(somme, &listeToAdd[j]);
 	}
 	
+
+	/*for(j = 0 ; j < b->longueur; j++)
+	{
+		superFree(&listeToAdd[j]);
+	}*/
 	free(listeToAdd);
-	
+
+	somme->positif = !(b->positif == 0 && a->positif == 1) && !(b->positif == 1 && a->positif == 0);
+
 	return somme;
 }
 
