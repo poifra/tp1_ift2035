@@ -1,0 +1,30 @@
+Entrées qui causent des erreurs
+----------------------------------------
+
+4 6 + : SF
+4 7 + : SF
+(...)
+4 10 + : Refonctionne tout d'un coup O_o
+
+
+4 10 - : -06 (avec le zéro)
+
+
+2 =a =b
+a b + : FS
+(alors que)
+2 =a
+2 =b
+a b + : 4
+
+
+1 6 - =a
+a : -5 (jusque là tout va bien)
+a 1 + : 6 (le négatif n'a plus d'importance)
+
+
+
+Légende
+----------------------------------------
+SF : Segmentation fault
+FS : Double free or corruption faststop
