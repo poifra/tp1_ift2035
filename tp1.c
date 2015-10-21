@@ -39,9 +39,10 @@ typedef struct cell cell;
 
 // Inspiré de "http://groups.csail.mit.edu/graphics/classes/6.837/F04/cpp_notes/stack1.html".
 struct pile {
-	// Maximum de 100 nombres en pile. À modifier au besoin.
-	num* data[100];
+	num* *data;
+    
 	int size;
+    int max_size;
 };
 
 typedef struct pile pile;
@@ -169,6 +170,13 @@ int traitement_commande() {
             if(est_un_nombre == 1) {
                 // Valeur, on la met dans un nombre à précision infinie et on met sa référence dans la pile.
                 num *valeur = malloc(sizeof(num));
+                
+                if(valeur == NULL) {
+                    printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
+                    
+                    return 0;
+                }
+                
                 strToBigNum(partie, valeur);
                 
                 pile_push(commandes, valeur);
@@ -217,12 +225,11 @@ num* addition(num *a, num *b) {
 	}
 
 	cell *result = malloc(sizeof(cell));
-
+    memcheck(result);
+    
 	num* r = malloc(sizeof(num));
-
 	memcheck(r);
-	memcheck(result);
-
+    
 	r->longueur = 0;
 
 	int fini = 0;
@@ -249,7 +256,6 @@ num* addition(num *a, num *b) {
 		if(!fini) {
 			// Ajustement des pointeurs pour le prochain round si pertinent.
 			newUnit = malloc(sizeof(cell));
-			
 			memcheck(newUnit);
 			
 			newUnit->suivant = NULL;
@@ -275,7 +281,6 @@ num* addition(num *a, num *b) {
 
 	if(carry) {
 		cell* carryCell = malloc(sizeof(cell));
-
 		memcheck(carryCell);
 
 		carryCell->chiffre = carry;
@@ -297,6 +302,8 @@ num* addition(num *a, num *b) {
  */
 num* soustraction(num *a, num *b) {
 	cell *result = malloc(sizeof(cell));
+    memcheck(result);
+    
 	cell *newUnit = NULL;
 	cell *cA = NULL;
 	cell *cB = NULL;
@@ -306,10 +313,8 @@ num* soustraction(num *a, num *b) {
 	int intermediaire = 0;
 
 	num* r = malloc(sizeof(num));
-
-	memcheck(result);
 	memcheck(r);
-
+    
 	r->longueur = 0;
 
 	if(numComparator(a,b) == -1) {
@@ -385,7 +390,6 @@ num* multiplication(num *a, num *b) {
 	memcheck(listeToAdd);
 
 	num *r = malloc(sizeof(num));
-
 	memcheck(r);
 
 	r->longueur = 0;
@@ -404,7 +408,6 @@ num* multiplication(num *a, num *b) {
 		cA = a->nombre;
 		
 		result = malloc(sizeof(cell));
-		
 		memcheck(result);
 		
 		result->suivant = NULL;
@@ -433,8 +436,8 @@ num* multiplication(num *a, num *b) {
 			if(!finiCA) { 
 				// Ajustement des pointeurs pour le prochain round si pertinent.
 				newUnit = malloc(sizeof(cell));
-
 				memcheck(newUnit);
+                
 				newUnit->precedent = result;
 
 				result->suivant = newUnit;
@@ -457,7 +460,6 @@ num* multiplication(num *a, num *b) {
 		// Ajuster le carry s'il le faut.
 		if(carry) {
 			cell* carryCell = malloc(sizeof(cell));
-
 			memcheck(carryCell);
 
 			carryCell->chiffre = carry;
@@ -479,7 +481,6 @@ num* multiplication(num *a, num *b) {
 		
 		if(decalageUnit > 0) {
 			currentZero = malloc(sizeof(cell));
-			
 			memcheck(currentZero);
 			
 			currentZero->chiffre = 0;
@@ -488,7 +489,6 @@ num* multiplication(num *a, num *b) {
 
 			for(i = 1; i < decalageUnit; i++) {
 				newZero = malloc(sizeof(cell));
-				
 				memcheck(newZero);
 				
 				newZero->precedent = currentZero;
@@ -517,6 +517,7 @@ num* multiplication(num *a, num *b) {
 	
 	num* somme = malloc(sizeof(num));
 	memcheck(somme);
+    
 	strToBigNum("0", somme);
 
 	for(j = 0; j < b->longueur; j++) {
@@ -573,7 +574,6 @@ void* setupNombres(num *a, num *b) {
 	while(b->longueur < a->longueur) {
 		// Ajustement de la longueur du plus petit nombre.
 		newZero = malloc(sizeof(cell));
-		
 		memcheck(newZero);
 		
 		newZero->chiffre = 0;
@@ -723,11 +723,11 @@ char* entreeDynamique(FILE* input) {
 	int defaut = 32;
 	
 	char* mot = malloc(sizeof(char) * defaut);
+	memcheck(mot);
+    
 	int taille = 0;
 	
 	char c;
-
-	memcheck(mot);
 	
 	while(1) {
 		c = fgetc(input);
@@ -767,7 +767,15 @@ char* entreeDynamique(FILE* input) {
  * Initialisation d'une pile.
  */
 void pile_init(pile *p) {
+    p->data = malloc(100 * sizeof(*p->data));
+    
+    if(p->data == NULL) {
+        printf("Mémoire épuisée, impossible de continuer le traitement.\n");
+        exit(1);
+    }
+    
 	p->size = 0;
+    p->max_size = 100;
 }
 
 /**
@@ -787,10 +795,19 @@ num* pile_peek(pile *p) {
  * Si la pile est pleine, réinitialise la pile à la taille double.
  */
 void pile_push(pile *p, num* n) {
-	if(p->size < 100) {
+	if(p->size < p->max_size) {
 		p->data[p->size++] = n;
 	} else {
-		// TODO.
+        p->max_size *= 2;
+        
+        p->data = realloc(p->data, p->max_size * sizeof(*p->data));
+        
+        if(p->data == NULL) {
+            printf("Mémoire épuisée, impossible de continuer le traitement.\n");
+            exit(1);
+        }
+        
+        pile_push(p, n);
 	}
 }
 
