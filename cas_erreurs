@@ -1,4 +1,4 @@
-Entrées qui causent des erreurs
+ï»¿EntrÃ©es qui causent des erreurs
 ----------------------------------------
 
 2 =a =b
@@ -10,12 +10,12 @@ a b + : 4
 
 
 1 6 - =a
-a : -5 (jusque là tout va bien)
-a 1 + : 6 (le négatif n'a plus d'importance)
+a : -5 (jusque lÃ  tout va bien)
+a 1 + : 6 (le nÃ©gatif n'a plus d'importance)
 
 
 
-Légende
+LÃ©gende
 ----------------------------------------
 SF : Segmentation fault
 FS : Double free or corruption faststop
