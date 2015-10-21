@@ -11,7 +11,7 @@
 
 // Pour les tests.
 #define memcheck(x) if(x == NULL) {\
-						printf("Memoire epuisee.\n");\
+						printf("Mémoire epuisée.\n");\
 						return NULL;\
 					}
 
@@ -72,30 +72,37 @@ void superFree(num*);
 void recursiveSuperFree(cell*);
 
 /**
- * Point d'entrée du programme.
- * 
- * Invite l'utilisateur à entrer des commandes au format
- * postfixe (ex: 3 2 + 5 * =a).
+ * Entrée d'une commande (STDIN) et retour d'une réponse appropriée (STDOUT).
+ * Retourne -1 lors d'une demande de quitter le programme, ou 0 si on continue.
+ *
+ * Invite l'utilisateur à entrer des commandes au format postfixe (ex: 3 2 + 5 * =a).
  */
-int main() {
-	printf("> ");
+int traitement_commande() {
+    printf("> ");
 	
 	char* entree = entreeDynamique(stdin);
+    
+    if(strcmp(entree, "\0") == 0) {
+        // Si l'utilisateur quitte ou entre une ligne vide.
+        return -1;
+    }
+    
 	// Les différentes parties sont séparées par des espaces.
 	char* partie = strtok(entree, " ");
 	
 	pile *commandes = malloc(sizeof(pile));
     
 	if(commandes == NULL) {
-		printf("memoire epuisee");
-		return -1;
+		printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
+        
+        return 0;
 	}
 	
     pile_init(commandes);
 	
 	do {      
 		if(strcmp(partie, "+") == 0 || strcmp(partie, "-") == 0 || strcmp(partie, "*") == 0) {
-			if(pile_count(commandes) == 2) {
+			if(pile_count(commandes) >= 2) {
 				num *r;
 				
 				num* b = pile_pop(commandes);
@@ -114,31 +121,64 @@ int main() {
 				superFree(b);
 				
 				if(r == NULL) {
-					printf("Mauvais calcul !");
+					printf("Mauvais calcul !\n");
+                    
+                    return 0;
 				}
 				
 				pile_push(commandes, r);
 			} else {
 				printf("Erreur: il manque une entree pour faire une operation !\n");
+                
+                return 0;
 			}
-		} else if(partie[0] == '=' && /*sizeof(partie) / sizeof(char) == 2 && (int) partie[1] % 32 >= 0 && (int) partie[1] % 32 <= 25*/partie[1] == 'a') {
+		} else if(partie[0] == '=' && strlen(partie) == 2 && partie[1] >= 'a' && partie[1] <= 'z') {
 			// Assignation de variable, on assigne et on continue comme si de rien n'était.
 			
 			if(pile_count(commandes) > 0) {
-				variables[/*(int) partie[1] % 32*/0] = pile_peek(commandes);
+				variables[(int) partie[1] % 32] = pile_peek(commandes);
 			} else {
 				printf("Que voulez-vous assigner ? Il manque quelque chose...\n");
+                
+                return 0;
 			}
-		} else if(/*(int) partie % 32 >= 0 && (int) partie % 32 <= 25*/strcmp(partie, "a") == 0) {
-			// Variable, on prend sa valeur dans la pile d'opérations.
-			pile_push(commandes, variables[/*(int) partie % 32*/0]);
-		} else /* TODO: if(isfloat()) */ {
-			// Valeur, on la met dans un nombre à précision infinie et on met sa référence dans la pile.
-			num *valeur = malloc(sizeof(num));
-			strToBigNum(partie, valeur);
-			
-			pile_push(commandes, valeur);
-		} // TODO: un "else" pour toute valeur non numérique qui correspond à rien d'avant non plus.
+		} else if(strlen(partie) == 1 && partie[0] >= 'a' && partie[0] <= 'z') {
+			// Variable, on met sa valeur dans la pile d'opérations.
+            
+            if(variables[(int) partie[0] % 32] != NULL) {
+                pile_push(commandes, variables[(int) partie[0] % 32]);
+            } else {
+                printf("La variable '%c' n'est pas encore définie.\n", partie[0]);
+                
+                return 0;
+            }
+		} else {
+            int est_un_nombre = 1;
+            int i = 0;
+                                    
+            while(i < strlen(partie)) {
+                if(partie[i] < '0' || partie[i] > '9') {
+                    est_un_nombre = 0;
+                    
+                    break;
+                }
+                
+                i++;
+            }
+            
+            if(est_un_nombre == 1) {
+                // Valeur, on la met dans un nombre à précision infinie et on met sa référence dans la pile.
+                num *valeur = malloc(sizeof(num));
+                strToBigNum(partie, valeur);
+                
+                pile_push(commandes, valeur);
+            } else {
+                // Caractère non-valide.
+                printf("Les éléments doivent tous être des variables (a-z, minuscule), des opérateurs ou bien des valeurs positives.\n");
+                
+                return 0;
+            }
+		}
 	} while(partie = strtok(NULL, " "));
 	
 	free(partie);
@@ -149,6 +189,18 @@ int main() {
 	} else {
 		printf("Erreur de syntaxe, veuillez completer vos calculs !\n");
 	}
+    
+    return 0;
+}
+
+/**
+ * Point d'entrée du programme.
+ */
+void main() {
+    while(traitement_commande() != -1);
+	
+    printf("Le programme va quitter.\n\n");
+    exit(0);
 }
 
 /**
@@ -160,13 +212,7 @@ num* addition(num *a, num *b) {
 	cell *cA = a->nombre;
 	cell *cB = b->nombre;
 
-	if(!cA) {
-		printf("erreur nombre a");
-		return NULL;
-	}
-	
-	if(!cB) {
-		printf("erreur nombre b");
+	if(!cA || !cB) {
 		return NULL;
 	}
 
@@ -188,16 +234,6 @@ num* addition(num *a, num *b) {
 	
 	while(!fini) {
 		fini = cA->suivant == NULL && cB->suivant == NULL;
-
-		if(cA->suivant != NULL && cB->suivant == NULL) {
-			printf("a pas null b null\n");
-			printNum(b);
-		}
-		
-		if(cA->suivant == NULL && cB->suivant != NULL) {
-			printf("a null b pas null\n");
-			printNum(a);
-		}
 
 		intermediaire = cA->chiffre + cB->chiffre + carry;
 
@@ -573,7 +609,7 @@ int strToBigNum(char *str, num *toCreate) {
 		*c = malloc(sizeof(cell));
 
 		if(*c == NULL) {
-			printf("memoire epuisee \n");
+			printf("Mémoire épuisée.\n");
 			superFree(toCreate);
 			
 			return -1;
@@ -747,14 +783,13 @@ num* pile_peek(pile *p) {
 
 /**
  * Ajout d'un élément au sommet d'une pile.
- * Retourne NULL si la pile est pleine.
+ * Si la pile est pleine, réinitialise la pile à la taille double.
  */
 void pile_push(pile *p, num* n) {
 	if(p->size < 100) {
 		p->data[p->size++] = n;
 	} else {
-		// Type à corriger.
-		//return NULL;
+		// TODO.
 	}
 }
 
