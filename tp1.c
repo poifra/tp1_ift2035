@@ -91,7 +91,7 @@ int traitement_commande() {
 	// Les différentes parties sont séparées par des espaces.
 	char* partie = strtok(entree, " ");
 	
-	pile *commandes = malloc(sizeof(pile));
+	pile* commandes = malloc(sizeof(pile));
 	
 	if(commandes == NULL) {
 		printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
@@ -104,7 +104,7 @@ int traitement_commande() {
 	do {	  
 		if(strcmp(partie, "+") == 0 || strcmp(partie, "-") == 0 || strcmp(partie, "*") == 0) {
 			if(pile_count(commandes) >= 2) {
-				num *r;
+				num* r;
 				
 				num* b = pile_pop(commandes);
 				num* a = pile_pop(commandes);
@@ -165,7 +165,7 @@ int traitement_commande() {
 			
 			if(est_un_nombre == 1) {
 				// Valeur, on la met dans un nombre à précision infinie et on met sa référence dans la pile.
-				num *valeur = malloc(sizeof(num));
+				num* valeur = malloc(sizeof(num));
 				
 				if(valeur == NULL) {
 					printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
@@ -212,17 +212,17 @@ void main() {
 /**
  * Opération d'addition.
  */
-num* addition(num *a, num *b) {
+num* addition(num* a, num* b) {
 	setupNombres(a, b);
 
-	cell *cA = a->nombre;
-	cell *cB = b->nombre;
+	cell* cA = a->nombre;
+	cell* cB = b->nombre;
 
 	if(!cA || !cB) {
 		return NULL;
 	}
 
-	cell *result = malloc(sizeof(cell));
+	cell* result = malloc(sizeof(cell));
 	memcheck(result);
 	
 	num* r = malloc(sizeof(num));
@@ -234,7 +234,7 @@ num* addition(num *a, num *b) {
 	int intermediaire = 0;
 	int carry = 0;
 
-	cell *newUnit = NULL;
+	cell* newUnit = NULL;
 	r->nombre = result;
 	
 	while(!fini) {
@@ -298,13 +298,13 @@ num* addition(num *a, num *b) {
 /**
  * Opération de soustraction.
  */
-num* soustraction(num *a, num *b) {
-	cell *result = malloc(sizeof(cell));
+num* soustraction(num* a, num* b) {
+	cell* result = malloc(sizeof(cell));
 	memcheck(result);
 	
-	cell *newUnit = NULL;
-	cell *cA = NULL;
-	cell *cB = NULL;
+	cell* newUnit = NULL;
+	cell* cA = NULL;
+	cell* cB = NULL;
 
 	int fini = 0;
 	int retenue = 0;
@@ -316,7 +316,7 @@ num* soustraction(num *a, num *b) {
 	r->longueur = 0;
 
 	if(numComparator(a,b) == -1) {
-		num *temp = a;
+		num* temp = a;
 		
 		a = b;
 		b = temp;
@@ -379,15 +379,15 @@ num* soustraction(num *a, num *b) {
 /**
  * Opération de multiplication.
  */
-num* multiplication(num *a, num *b) {
-	cell *cA = a->nombre;
-	cell *cB = b->nombre;
-	cell *result = NULL;
+num* multiplication(num* a, num* b) {
+	cell* cA = a->nombre;
+	cell* cB = b->nombre;
+	cell* result = NULL;
 
-	num *listeToAdd = malloc(b->longueur * sizeof(num));
+	num* listeToAdd = malloc(b->longueur * sizeof(num));
 	memcheck(listeToAdd);
 
-	num *r = malloc(sizeof(num));
+	num* r = malloc(sizeof(num));
 	memcheck(r);
 
 	r->longueur = 0;
@@ -399,7 +399,7 @@ num* multiplication(num *a, num *b) {
 	int chiffreCourant = 0;
 	int decalageUnit = 0;
 
-	cell *newUnit = NULL;
+	cell* newUnit = NULL;
 	
 	do {
 		chiffreCourant = cB->chiffre;
@@ -471,9 +471,9 @@ num* multiplication(num *a, num *b) {
 		}
 
 		// Ajuster les zéros.
-		cell *newZero = NULL;
-		cell *currentZero = NULL;
-		cell *premierZero = NULL;
+		cell* newZero = NULL;
+		cell* currentZero = NULL;
+		cell* premierZero = NULL;
 		
 		int i = 0;
 		
@@ -531,7 +531,7 @@ num* multiplication(num *a, num *b) {
  * Libère un nombre de la mémoire.
  */
 void superFree(num* toFree) {
-	cell *c = toFree->nombre;
+	cell* c = toFree->nombre;
 	
 	if(c != NULL) {
 		recursiveSuperFree(c);
@@ -558,9 +558,9 @@ void recursiveSuperFree(cell* c) {
 /**
  * Valide les nombres entrés et ajuste leur longueur, au besoin.
  */
-void* setupNombres(num *a, num *b) {
+void* setupNombres(num* a, num* b) {
 	if(a->longueur < b->longueur) {
-		num *temp = a;
+		num* temp = a;
 		
 		a = b;
 		b = temp;
@@ -591,11 +591,11 @@ void* setupNombres(num *a, num *b) {
  * Transforme un nombre dans une string en chaîne liée de précision infinie.
  * Retourne -1 s'il n'y a pas assez de mémoire pour stocker le nombre.
  */
-int strToBigNum(char *str, num *toCreate) {
+int strToBigNum(char* str, num* toCreate) {
 	int i;
 	
-	cell **c = &toCreate->nombre;
-	cell *precedent = NULL;
+	cell** c = &toCreate->nombre;
+	cell* precedent = NULL;
 	
 	int positif = str[0] != '-';
 	
@@ -639,7 +639,7 @@ int strToBigNum(char *str, num *toCreate) {
  * Compare les quantités de chaque nombre: zéro si nombre égaux, 1 si a > b, -1 si a < b.
  * (Voir "Spaceship operator").
  */
-int numComparator(num *a, num *b) {
+int numComparator(num* a, num* b) {
 	if(a->positif > b->positif) {
 		return 1;
 	}
@@ -663,8 +663,8 @@ int numComparator(num *a, num *b) {
 	
 	// Les deux nombres ont la même longueur (> 1) et le même signe.
 	// On compare en commençant par la partie la plus singificative.
-	cell *cA = a->dernier;
-	cell *cB = b->dernier;
+	cell* cA = a->dernier;
+	cell* cB = b->dernier;
 
 	while(cA->precedent != NULL) {
 		if(cA->chiffre > cB->chiffre) {
@@ -685,13 +685,13 @@ int numComparator(num *a, num *b) {
 /**
  * Affiche un nombre.
  */
-void printNum(num *toPrint) {
+void printNum(num* toPrint) {
 	if(!toPrint->positif) {
 		// Nombre négatif.
 		printf("-");
 	}
 	
-	cell *nombre = toPrint->dernier;
+	cell* nombre = toPrint->dernier;
 
 	int position = toPrint->longueur;
 	
@@ -763,7 +763,7 @@ char* entreeDynamique(FILE* input) {
 /**
  * Initialisation d'une pile.
  */
-void pile_init(pile *p) {
+void pile_init(pile* p) {
 	p->data = malloc(100 * sizeof(*p->data));
 	
 	if(p->data == NULL) {
@@ -779,7 +779,7 @@ void pile_init(pile *p) {
  * Aperçu du haut de la pile.
  * Retourne NULL si la pile est vide.
  */
-num* pile_peek(pile *p) {
+num* pile_peek(pile* p) {
 	if(p->size == 0) {
 		return NULL;
 	}
@@ -791,7 +791,7 @@ num* pile_peek(pile *p) {
  * Ajout d'un élément au sommet d'une pile.
  * Si la pile est pleine, réinitialise la pile à la taille double.
  */
-void pile_push(pile *p, num* n) {
+void pile_push(pile* p, num* n) {
 	if(p->size < p->max_size) {
 		p->data[p->size++] = n;
 	} else {
@@ -811,7 +811,7 @@ void pile_push(pile *p, num* n) {
 /**
  * Enlève et retourne le sommet de la pile.
  */
-num* pile_pop(pile *p) {
+num* pile_pop(pile* p) {
 	if(p->size == 0) {
 		return NULL;
 	} else {
@@ -825,6 +825,6 @@ num* pile_pop(pile *p) {
 /**
  * Retourne la taille de la pile.
  */
-int pile_count(pile *p) {
+int pile_count(pile* p) {
 	return p->size;
 }
