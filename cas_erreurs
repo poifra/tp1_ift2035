@@ -1,20 +1,20 @@
 ﻿Entrées qui causent des erreurs
 ----------------------------------------
 
-2 =a =b
-a b + : FS
-(alors que)
-2 =a
-2 =b
-a b + : 4
-
-
 1 6 - =a
 a : -5 (jusque là tout va bien)
 a 1 + : 6 (le négatif n'a plus d'importance)
 
 
-7 7 * 3 + 1 - : 519 ???
+1000 1000 * =a : 1000000
+1 a - : SF
+(alors que)
+1000000 =a
+1 a - : -999999 (OK)
+
+
+5 5 - : -0 (au lieu de zéro)
+5 5 - 0 + : 0 (là ça marche, il faut jamais de "-" avant le zéro)
 
 
 Légende
