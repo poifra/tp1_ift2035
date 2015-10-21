@@ -19,8 +19,8 @@ struct num {
 	int positif; 
 	int longueur;
 	int nbRef;
-	struct cell *nombre;
-	struct cell *dernier;
+	struct cell* nombre;
+	struct cell* dernier;
 };
 
 struct var {
@@ -30,8 +30,8 @@ struct var {
 
 struct cell {
 	int chiffre; 
-	struct cell *suivant;
-	struct cell *precedent;
+	struct cell* suivant;
+	struct cell* precedent;
 };
 
 typedef struct num num;
@@ -39,7 +39,7 @@ typedef struct cell cell;
 
 // Inspiré de "http://groups.csail.mit.edu/graphics/classes/6.837/F04/cpp_notes/stack1.html".
 struct pile {
-	num* *data;
+	num** data;
 	
 	int size;
 	int max_size;
@@ -57,11 +57,11 @@ char* entreeDynamique(FILE*);
 // Prototypes.
 void printNum(num*);
 void* setupNombres(num*, num*);
-void pile_init(pile *p);
-num* pile_peek(pile *p);
-void pile_push(pile *p, num* n);
-num* pile_pop(pile *p);
-int pile_count(pile *p);
+void pile_init(pile* p);
+num* pile_peek(pile* p);
+void pile_push(pile* p, num* n);
+num* pile_pop(pile* p);
+int pile_count(pile* p);
 
 // Définition des opérateurs.
 num* soustraction(num*, num*);
