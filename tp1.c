@@ -276,13 +276,14 @@ num* addition(num *a, num *b) {
 	if(carry) {
 		cell* carryCell = malloc(sizeof(cell));
 
-		memcheck(carryCell);
+		memcheck(carryCell)
 
 		carryCell->chiffre = carry;
-		carryCell->precedent = newUnit;
-		newUnit->suivant = carryCell;
+		carryCell->precedent = result;
+		
+		result->suivant = carryCell;
 		carryCell->suivant = NULL;
-
+		
 		r->dernier = carryCell;
 		r->longueur++;
 	}
@@ -694,13 +695,13 @@ void printNum(num *toPrint) {
 	
 	cell *nombre = toPrint->dernier;
 
-	/*int position = toPrint->longueur;
+	int position = toPrint->longueur;
 	
 	// Cas particulier si le nombre est 0.
 	while(nombre->chiffre == 0 && position != 1) {
 		nombre = nombre->precedent;
 		position--;
-	}*/
+	}
 	
 	// On peut afficher les nombres dans l'ordre. 
 	while(nombre->precedent != NULL) {
