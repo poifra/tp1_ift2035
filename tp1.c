@@ -178,7 +178,7 @@ int traitement_commande() {
 				pile_push(commandes, valeur);
 			} else {
 				// Caractère non-valide.
-				printf("Les éléments doivent tous être des variables (a-z, minuscule), des opérateurs ou bien des valeurs positives.\n");
+				printf("Les éléments doivent tous être des variables (a-z, minuscule), des opérateurs ou bien des valeurs positives entières.\n");
 				
 				return 0;
 			}
