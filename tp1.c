@@ -211,8 +211,6 @@ int traitement_commande() {
 		printNum(pile_pop(commandes));
 	} else {
 		printf("Erreur de syntaxe, veuillez completer vos calculs !\n");
-		free(entree);
-		free(commandes);
 	}
 	
 	// TODO: Faire un superFree() sur tous les num* sauf ceux contenus dans "variables[26]".
