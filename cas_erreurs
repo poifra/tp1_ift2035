@@ -1,30 +1,23 @@
-EntrÈes qui causent des erreurs
+ÔªøEntr√©es qui causent des erreurs
 ----------------------------------------
 
-4 6 + : SF
-4 7 + : SF
-(...)
-4 10 + : Refonctionne tout d'un coup O_o
-
-
-4 10 - : -06 (avec le zÈro)
-
-
-2 =a =b
-a b + : FS
-(alors que)
-2 =a
-2 =b
-a b + : 4
-
-
 1 6 - =a
-a : -5 (jusque l‡ tout va bien)
-a 1 + : 6 (le nÈgatif n'a plus d'importance)
+a : -5 (jusque l√† tout va bien)
+a 1 + : 6 (le n√©gatif n'a plus d'importance)
 
 
+1000 1000 * =a : 1000000
+1 a - : SF
+(alors que)
+1000000 =a
+1 a - : -999999 (OK)
 
-LÈgende
+
+5 5 - : -0 (au lieu de z√©ro)
+5 5 - 0 + : 0 (l√† √ßa marche, il faut jamais de "-" avant le z√©ro)
+
+
+L√©gende
 ----------------------------------------
 SF : Segmentation fault
 FS : Double free or corruption faststop
