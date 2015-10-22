@@ -194,14 +194,8 @@ int traitement_commande() {
 				pile_push(commandes, valeur);
 			} else {
 				// Caractère non-valide.
-<<<<<<< HEAD
 				printf("Les éléments doivent tous être des variables (a-z, minuscule), des opérateurs ou bien des valeurs positives entières.\n");
 				
-=======
-				printf("Les éléments doivent tous être des variables (a-z, minuscule), des opérateurs ou bien des valeurs positives.\n");
-				free(entree);
-				free(commandes);
->>>>>>> 39a088b3a2ac9e386423992daa601da28c036cfc
 				return 0;
 			}
 		}
