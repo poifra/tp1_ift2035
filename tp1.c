@@ -83,15 +83,15 @@ int traitement_commande() {
 	
 	char* entree = entreeDynamique(stdin);
 	
-	if(entree == NULL)
-	{
-		printf("Pas assez de mémoire pour allouer l'entrée");
+	if(entree == NULL) {
+		printf("Pas assez de mémoire pour allouer l'entrée.\n");
 		return 0;
 	}
-
+    
 	if(strcmp(entree, "\0") == 0) {
 		// Si l'utilisateur quitte ou entre une ligne vide.
 		free(entree);
+        
 		return -1;
 	}
 	
@@ -103,6 +103,7 @@ int traitement_commande() {
 	if(commandes == NULL) {
 		printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
 		free(entree);
+        
 		return 0;
 	}
 	
@@ -110,8 +111,7 @@ int traitement_commande() {
 	
 	do {	  
 		if(strcmp(partie, "+") == 0 || strcmp(partie, "-") == 0 || strcmp(partie, "*") == 0) {
-			if(pile_count(commandes) >= 2) 
-			{
+			if(pile_count(commandes) >= 2) {
 				num* r;
 				
 				num* b = pile_pop(commandes);
@@ -127,20 +127,24 @@ int traitement_commande() {
 				
 				if(r == NULL) {
 					printf("Mauvais calcul !\n");
-					superFree(a);
-					superFree(b);
-					free(entree);
+                    
+                    superFree(a);
+                    superFree(b);
+					
+                    free(entree);
 					free(commandes);
-					return 0;
+					
+                    return 0;
 				}
 				
 				pile_push(commandes, r);
-			} 
-			else {
+			} else {
 				printf("Erreur: il manque une entree pour faire une operation !\n");
+                
 				free(entree);
 				free(commandes);
-				return 0;
+				
+                return 0;
 			}
 		} else if(partie[0] == '=' && strlen(partie) == 2 && partie[1] >= 'a' && partie[1] <= 'z') {
 			// Assignation de variable, on assigne et on continue comme si de rien n'était.
@@ -160,8 +164,10 @@ int traitement_commande() {
 				pile_push(commandes, variables[(int) partie[0] % 32]);
 			} else {
 				printf("La variable '%c' n'est pas encore définie.\n", partie[0]);
+                
 				free(commandes);
 				free(entree);
+                
 				return 0;
 			}
 		} else {
@@ -184,8 +190,10 @@ int traitement_commande() {
 				
 				if(valeur == NULL) {
 					printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
+                    
 					free(entree);
 					free(commandes);
+                    
 					return 0;
 				}
 				
@@ -201,10 +209,13 @@ int traitement_commande() {
 		}
 	} while(partie = strtok(NULL, " "));
 	
-	if(partie != NULL)
+	if(partie != NULL) {
 		free(partie);
-	if(entree != NULL)
+    }
+    
+	if(entree != NULL) {
 		free(entree);
+    }
 	
 	if(pile_count(commandes) == 1) {
 		printNum(pile_pop(commandes));
@@ -214,13 +225,14 @@ int traitement_commande() {
 	
 	// TODO: Faire un superFree() sur tous les num* sauf ceux contenus dans "variables[26]".
 	free(commandes);
+    
 	return 0;
 }
 
 /**
  * Point d'entrée du programme.
  */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 	while(traitement_commande() != -1);
 	
 	printf("Le programme va quitter.\n\n");
@@ -232,7 +244,7 @@ int main(int argc, char **argv) {
  */
 num* addition(num* a, num* b) {
 
-	if(a->positif == 0 && b->positif == 1)
+    if(a->positif == 0 && b->positif == 1)
 	{
 		a->positif = 1;
 		return soustraction(b,a);
@@ -335,13 +347,14 @@ num* addition(num* a, num* b) {
  */
 num* soustraction(num* a, num* b) 
 {
-	if(a->positif == 0 && b->positif ==  1)
+    if(a->positif == 0 && b->positif ==  1)
 	{
 		a->positif = 1;
 		num* res = addition(a,b);
 		res->positif = 0;
 		return res;
 	}
+    
 	cell* result = malloc(sizeof(cell));
 	memcheck(result);
 	
@@ -729,9 +742,9 @@ int numComparator(num* a, num* b) {
  * Affiche un nombre.
  */
 void printNum(num* toPrint) {
-	if(!toPrint->positif && toPrint->longueur > 1) 
-	{
+	if(!toPrint->positif && toPrint->longueur > 1) {
 		// Nombre négatif, pas 0.
+        // TODO: Revoir cette partie, what about "-5" or "-7" ? >2 maybe ?
 		printf("-");
 	}
 	

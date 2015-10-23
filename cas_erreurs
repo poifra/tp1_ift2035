@@ -6,15 +6,6 @@
 (alors que)
 1000000 =a
 1 a - : -999999 (OK)
-//semble fixé, nope pas fixé de mon bord en tout cas O_o, même quand c'est les seules commandes
-
-// Ah wtf, ça marche si on fait juste ça, mais pas si on fait
-// > 1 1 + 1 - 48 *
-// 48
-// > 1000 1000 * =a
-// 1000000
-// > 1 a -
-// SF
 
 
 Légende
