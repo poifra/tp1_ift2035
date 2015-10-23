@@ -134,7 +134,7 @@
 	\newpage
 	
 	\section{Fonctionnement du programme}
-		 Une ou deux pages ici.
+		Le programme est une calculatrice en notation postfixe. On peut également affecter des résultats à des variables, qui sont des lettres miniscules, de a à z. Lors de l'éxecution du programme, celui-ci attend une entrée de l'usager. Cette entrée peut être soit un simple calcul, une variable -- pour voir sa valeur -- ou une affectation à une variable. Pour affecter une variable, on place =<lettre> à la fin de l'expression.
 			
 	%% END OF {Fonctionnement du programme} %%
 	
@@ -159,7 +159,7 @@
             
         
             \subsubsection{Addition}
-             Nous commençons le processus d'addition en vérifiant que les deux nombres ont la même longueur. Cela doit être fait pour éviter qu'une des listes se aie encore des suivants, sans que l'autre en aie.On aurait alors une addition entre un chiffre et un NULL. Tout d'abord, on vérifie quel nombre, entre $a$ et $b$, est le plus long. Si $b$ est le plus long, on inverse les deux nombres. Par la suite, on rajoute des 0 à la fin de $b$ tant qu'il n'a pas atteint la longueur de $a$. On peut ensuite commencer l'addition elle-même. En commençant par l'unité la moins significative, on additione chiffre par chiffre, plus le carry. Si le résultat est plus grand que 9, on soustrait 10 et on change la valeur de la variable carry à 1. La retenue ne peut pas être plus grande que 1, car on additionne au maximum 9 et 9. Si le calcul n'est pas fini, on alloue un espace pour la prochaine cellule et on ajuste les pointeurs en conséquence. La dernière étape consiste à vérifier si il ya une ultime retenue. Si c'est le cas, on fait un processus similaire a celui décrit plus haut. La somme est ensuite retournée. Cette opération s'effectue en O(n), où n est la longueur du plus grand des deux nombres.
+             Avant de calculer quoique ce soit, nous vérifions les signes des nombres passés en paramètres. En effet, dans certains cas, comme, $a + -b$, il est plus simple de faire une soustraction. Nous commençons le processus d'addition en vérifiant que les deux nombres ont la même longueur. Cela doit être fait pour éviter qu'une des listes se aie encore des suivants, sans que l'autre en aie.On aurait alors une addition entre un chiffre et un NULL. Tout d'abord, on vérifie quel nombre, entre $a$ et $b$, est le plus long. Si $b$ est le plus long, on inverse les deux nombres. Par la suite, on rajoute des 0 à la fin de $b$ tant qu'il n'a pas atteint la longueur de $a$. On peut ensuite commencer l'addition elle-même. En commençant par l'unité la moins significative, on additione chiffre par chiffre, plus le carry. Si le résultat est plus grand que 9, on soustrait 10 et on change la valeur de la variable carry à 1. La retenue ne peut pas être plus grande que 1, car on additionne au maximum 9 et 9. Si le calcul n'est pas fini, on alloue un espace pour la prochaine cellule et on ajuste les pointeurs en conséquence. La dernière étape consiste à vérifier si il ya une ultime retenue. Si c'est le cas, on fait un processus similaire a celui décrit plus haut. La somme est ensuite retournée. Cette opération s'effectue en O(n), où n est la longueur du plus grand des deux nombres.
             
             \subsubsection{Soustraction}
              La soustraction utilise un processus similaire à celui de l'addition dans la phase initiale. On commence par vérifier la longueur de chaque nombre et si $a < b$, on inverse les deux nombres en tenant compte du fait que $(a-b) = -(b-a)$. Ensuite, des zéros sont ajoutés à la fin de $b$ jusqu'à ce que les longueurs soient égales. Lors du processus de soustraction, si la différence des chiffres de deux cellules est plus petite que 0, on emprunte dans l'unité suivante et on recommence le calcul afin d'avoir une valeur de résultat positive. Le résultat final est ensuite retourné. Cette opération est également en O(n).
@@ -172,6 +172,8 @@
         
         \subsection{Traitement des erreurs}
          Lors du calcul en tant que tel, la seule erreur qui peut se produire est une insuffisance de mémoire. Si c'est le cas, la fonction de calcule indique un message et le programme attends la prochaine instruction. Les variables intermédiaires servant au calculs sont libérées avant l'arrêt de la fonction.
+
+         Dans l'entrée, il peut y avoir des erreurs de syntaxes, ou encore un appel à une variable qui n'est pas encore initialisée. Si l'utilisateur fait l'une ou l'autre de ces actions, il en est informé et l'interprétation de l'entrée arrête. Le programme attends la prochaine instruction. La mémoire allouée à l'entrée et aux variables stockées est libérée avant d'attendre de nouvelles instructions. 
 		
 	%% END OF {Problèmes de programmation} %%
 \end{document}
