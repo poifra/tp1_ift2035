@@ -439,6 +439,13 @@ num* soustraction(num* a, num* b, int ancien_a_positif, int ancien_b_positif)
 		r->dernier = newUnit;
 	}
     
+    if(numComparator(b,a) == -1) {
+		num* temp_reverse = a;
+		
+		a = b;
+		b = temp_reverse;
+    }
+    
     a->positif = ancien_a_positif;
     b->positif = ancien_b_positif;
     
