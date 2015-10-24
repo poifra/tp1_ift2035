@@ -467,7 +467,8 @@ num* multiplication(num* a, num* b) {
 	memcheck(r);
 
 	r->longueur = 0;
-
+	r->positif = a->positif == b->positif;
+	
 	int finiCB = 0;
 	int finiCA = 0;
 	int intermediaire = 0;
@@ -489,7 +490,6 @@ num* multiplication(num* a, num* b) {
 		
 		r->nombre = result;
 		r->longueur = 0;
-		r->positif = 1;
 		
 		carry = 0;
 
