@@ -98,6 +98,7 @@ int traitement_commande() {
 	// Les différentes parties sont séparées par des espaces.
 	char* partie = strtok(entree, " ");
 	
+    // Pile des commandes entrées, une fois exécutées.
 	pile* commandes = malloc(sizeof(pile));
 	
 	if(commandes == NULL) {
@@ -108,6 +109,18 @@ int traitement_commande() {
 	}
 	
 	pile_init(commandes);
+    
+    // Pile des nombres.
+	pile* nombres = malloc(sizeof(pile));
+	
+	if(nombres == NULL) {
+		printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
+		free(entree);
+        
+		return 0;
+	}
+	
+	pile_init(nombres);
 	
 	do {	  
 		if(strcmp(partie, "+") == 0 || strcmp(partie, "-") == 0 || strcmp(partie, "*") == 0) {
@@ -137,6 +150,10 @@ int traitement_commande() {
                     return 0;
 				}
 				
+                pile_push(nombres, a);
+                pile_push(nombres, b);
+                pile_push(nombres, r);
+                
 				pile_push(commandes, r);
 			} else {
 				printf("Erreur: il manque une entree pour faire une operation !\n");
@@ -151,10 +168,15 @@ int traitement_commande() {
 			
 			if(pile_count(commandes) > 0) {
 				variables[(int) partie[1] % 32] = pile_peek(commandes);
+                
+                // Si ça devient une variable, on ne veut pas l'éliminer de la mémoire.
+                pile_pop(nombres);
 			} else {
 				printf("Que voulez-vous assigner ? Il manque quelque chose...\n");
+                
 				free(entree);
 				free(commandes);
+                
 				return 0;
 			}
 		} else if(strlen(partie) == 1 && partie[0] >= 'a' && partie[0] <= 'z') {
@@ -199,6 +221,7 @@ int traitement_commande() {
 				
 				strToBigNum(partie, valeur);
 				
+                pile_push(nombres, valeur);
 				pile_push(commandes, valeur);
 			} else {
 				// Caractère non-valide.
@@ -223,7 +246,31 @@ int traitement_commande() {
 		printf("Erreur de syntaxe, veuillez completer vos calculs !\n");
 	}
 	
-	// TODO: Faire un superFree() sur tous les num* sauf ceux contenus dans "variables[26]".
+    /*while(pile_peek(nombres) != NULL) {
+        num* nombre = pile_pop(nombres);
+        
+        if(nombre != NULL) {
+            int i = 0;
+            int est_variable = 0;
+            
+            while(i < 26) {
+                if(variables[i] == nombre) {
+                    est_variable = 1;
+                    break;
+                }
+                
+                i++;
+            }
+            
+            if(est_variable == 0) {
+                superFree(nombre);
+                nombre = NULL;
+            }
+        }
+    }*/
+    
+    free(nombres->data);
+    free(nombres);
     
     free(commandes->data);
 	free(commandes);
@@ -903,6 +950,11 @@ num* pile_pop(pile* p) {
         if(p->size < p->max_size / 2) {
             p->max_size /= 2;
             p->data = realloc(p->data, p->max_size * sizeof(*p->data));
+            
+            if(p->data == NULL) {
+                printf("Mémoire épuisée, impossible de continuer le traitement.\n");
+                exit(1);
+            }
         }
         
 		num* top = pile_peek(p);
