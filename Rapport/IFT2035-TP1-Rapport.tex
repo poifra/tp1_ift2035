@@ -134,26 +134,27 @@
 	\newpage
 	
 	\section{Fonctionnement du programme}
-		Le programme est une calculatrice en notation postfixe. On peut également affecter des résultats à des variables, qui sont des lettres miniscules, de a à z. Lors de l'éxecution du programme, celui-ci attend une entrée de l'usager. Cette entrée peut être soit un simple calcul, une variable -- pour voir sa valeur -- ou une affectation à une variable. Pour affecter une variable, on place =<lettre> à la fin de l'expression. Il est possible d'affecter plusieurs variables simultanément en enchaînant les =<lettre>. Par exemple 1 1 + =a =b =c affectera la valeur 2 aux variable a,b et c.
+		Le programme est une calculatrice en notation postfixe, aussi appelée notation polonaise inversée. On peut également affecter des résultats de calculs à des variables, qui sont des lettres miniscules, de a à z. Lors de l'éxecution du programme, celui-ci attend une entrée de l'usager. Cette entrée peut être soit un simple calcul, une variable -- pour voir sa valeur -- ou une affectation à une variable. Pour affecter une variable, on place =<lettre> à la fin de l'expression. Il est possible d'affecter plusieurs variables simultanément en enchaînant les =<lettre>. Par exemple 1 1 + =a =b =c affectera la valeur 2 aux variable a,b et c. 
+
+		En cas de problème, soit avec la syntaxe ou avec l'utilisation de variables non initialisées, l'utilisateur est informé de l'erreur qu'il a commise. Il se peut aussi que le programme ne dispose pas suffisament de mémoire pour effectuer un calcul. Si c'est le cas, l'utilisateur recoit un message et le programme attend la prochaine instruction. Ce comportement est bien évidemment une simulation, car dans un cas réel, il serait surprenant que le programme trouve subitement de la mémoire pour un autre calcul. 
 			
 	%% END OF {Fonctionnement du programme} %%
 	
     
 	\section{Problèmes de programmation}
-        Deux à quatre pages en tout.
-        
 		\subsection{Représentation des nombres et variables}
 		Le nombre en tant que tel est une liste doublement chaînée. Ainsi, chaque cellule possède un pointeur vers la prochaine cellule, un pointeur vers la cellule précédente et une valeur, qui est un chiffre.Un object nombre est constitué d'un pointeur vers la tête d'une liste doublement chaînée, d'un pointeur vers le dernier élément de la liste, d'une longueur et d'un compteur de références. La raison pour laquelle nous avons choisi une telle implémentation est pour faciliter le calcul. Nous lisons les nombres de gauche à droite, mais le calcul de chaque opération se fait de droite à gauche. Les nombres sont donc inversés en mémoire. L'unité la plus significative est à la fin de la liste et l'unité la moins significative est au début. Pour pouvoir imprimer le nombre efficacement sans parcourir deux fois la liste, nous gardons une référence sur le dernier élément et nous imprimons chaque cellule, à reculons. La propriété de longueur sert à ajuster les nombres au besoin dans les opérations. Pour plus de détails, voir la section \ref{algos}.
 
-		Les variables sont tout simplement représentées par un tableau de 26 nombres. Pour accèder au bon indice, nous utilisons des 
         
         \subsection{Analyse de l'entrée et calcul}
-            
-        
+        Nous commençons par séprarer l'entrée (si elle est valide) en différentes parties, séparées par des espaces, à l'aide de la fonction \textit{strtok}. Tant qu'il y a des parties à lire, on effectue différentes opérations avec la pile selon le cas. Si c'est une valeur ou une variable, on pousse la valeur (ou la valeur de la variable, si elle est définie) sur la pile. L'autre possibilité est un opérateur. Dans ce cas, on dépile deux valeurs et on effectue leur calcul. Le résultat est ensuite poussé sur la pile. À la toute fin, si l'expression était bien formée, il ne reste que le résultat final sur la pile. Si l'expression contenait une affectation d'une (ou plusieurs) variables, on affecte la valeur sur le dessus de la pile à la variable (ou aux variables, si c'est le cas).
+
+        Pour imprimer le nombre, nous devons imprimer charactère par charactère, puisque nous ne savons pas \textit{a priori} il y a combien. En partant de la fin, tant que le nombre courant a un prédécesseur, nous imprimons le nombre courant. Puis, lorsqu'il n'a plus de prédécesseur, nous imprimons le nombre courant. 
+
         \subsection{Gestion de la mémoire}
         Dans les opérateurs, la mémoire est allouée avec \textit{malloc} lorsque nécéssaire, c'est-à-dire lorsqu'il faut une unité supplémentaire car le calcul n'est pas fini. Aussi, à la fin des calculs, on alloue de l'espace pour le carry seulement si nécéssaire. Pour libérer un nombre, nous utilisons les fonctions \textit{superFree} et \textit{recursiveSuperFree}. La première appelle la seconde et la seconde s'appelle elle-même récursivement, tant qu'il y une cellule suivante à libérer. Si ce n'est pas le cas, la cellule courante est libérée et sa valeur change à NULL. Lorsque toutes les cellules on été libérées, le nombre en tant que tel est libéré.
          
-         TODO : GESTION MÉMOIRE DE LA PILE
+        La pile est une structure possédant un pointeur de pointeur de nombres, qui sert à stocker les valeurs calculées. une taille et une taille maximale. La taille de la pile est incrémentée à chaque valeur poussée et décrémentée à chaque valeur dépilée. Dans un souci d'efficaité de mémoire, si la pile est trop grosse, sa mémoire est réallouée dans un bloc plus petit.  Cela se produit lorsque la taille maximale de la pile est au moins deux fois plus grande que la taille actuelle. De manière similaire, si il n'y a plus de place pour empiler un élément, la taille de la pile double. 
         
         \subsection{Algorithmes de calcul} \label{algos}
             
