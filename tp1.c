@@ -83,15 +83,15 @@ int traitement_commande() {
 	
 	char* entree = entreeDynamique(stdin);
 	
-	if(entree == NULL)
-	{
-		printf("Pas assez de mémoire pour allouer l'entrée");
+	if(entree == NULL) {
+		printf("Pas assez de mémoire pour allouer l'entrée.\n");
 		return 0;
 	}
-
+    
 	if(strcmp(entree, "\0") == 0) {
 		// Si l'utilisateur quitte ou entre une ligne vide.
 		free(entree);
+        
 		return -1;
 	}
 	
@@ -103,6 +103,7 @@ int traitement_commande() {
 	if(commandes == NULL) {
 		printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
 		free(entree);
+        
 		return 0;
 	}
 	
@@ -110,8 +111,7 @@ int traitement_commande() {
 	
 	do {	  
 		if(strcmp(partie, "+") == 0 || strcmp(partie, "-") == 0 || strcmp(partie, "*") == 0) {
-			if(pile_count(commandes) >= 2) 
-			{
+			if(pile_count(commandes) >= 2) {
 				num* r;
 				
 				num* b = pile_pop(commandes);
@@ -127,20 +127,24 @@ int traitement_commande() {
 				
 				if(r == NULL) {
 					printf("Mauvais calcul !\n");
-					superFree(a);
-					superFree(b);
-					free(entree);
+                    
+                    superFree(a);
+                    superFree(b);
+					
+                    free(entree);
 					free(commandes);
-					return 0;
+					
+                    return 0;
 				}
 				
 				pile_push(commandes, r);
-			} 
-			else {
+			} else {
 				printf("Erreur: il manque une entree pour faire une operation !\n");
+                
 				free(entree);
 				free(commandes);
-				return 0;
+				
+                return 0;
 			}
 		} else if(partie[0] == '=' && strlen(partie) == 2 && partie[1] >= 'a' && partie[1] <= 'z') {
 			// Assignation de variable, on assigne et on continue comme si de rien n'était.
@@ -160,8 +164,10 @@ int traitement_commande() {
 				pile_push(commandes, variables[(int) partie[0] % 32]);
 			} else {
 				printf("La variable '%c' n'est pas encore définie.\n", partie[0]);
+                
 				free(commandes);
 				free(entree);
+                
 				return 0;
 			}
 		} else {
@@ -184,8 +190,10 @@ int traitement_commande() {
 				
 				if(valeur == NULL) {
 					printf("Entrée invalide. La mémoire maximale a été dépassée.\n");
+                    
 					free(entree);
 					free(commandes);
+                    
 					return 0;
 				}
 				
@@ -201,10 +209,13 @@ int traitement_commande() {
 		}
 	} while(partie = strtok(NULL, " "));
 	
-	if(partie != NULL)
+	if(partie != NULL) {
 		free(partie);
-	if(entree != NULL)
+    }
+    
+	if(entree != NULL) {
 		free(entree);
+    }
 	
 	if(pile_count(commandes) == 1) {
 		printNum(pile_pop(commandes));
@@ -214,13 +225,14 @@ int traitement_commande() {
 	
 	// TODO: Faire un superFree() sur tous les num* sauf ceux contenus dans "variables[26]".
 	free(commandes);
+    
 	return 0;
 }
 
 /**
  * Point d'entrée du programme.
  */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 	while(traitement_commande() != -1);
 	
 	printf("Le programme va quitter.\n\n");
@@ -232,9 +244,7 @@ int main(int argc, char **argv) {
  */
 num* addition(num* a, num* b) {
 
-	int memeSigne = a->positif == b->positif;
-	/*
-	if(a->positif == 0 && b->positif == 1)
+    if(a->positif == 0 && b->positif == 1)
 	{
 		a->positif = 1;
 		return soustraction(b,a);
@@ -250,7 +260,6 @@ num* addition(num* a, num* b) {
 		b->positif = 1;
 		return soustraction(a,b);
 	}
-	*/
 	setupNombres(a, b);
 
 	cell* cA = a->nombre;
@@ -278,24 +287,7 @@ num* addition(num* a, num* b) {
 	while(!fini) {
 		fini = cA->suivant == NULL && cB->suivant == NULL;
 
-		if(memeSigne)
-		{
-			intermediaire = carry + cA->chiffre + cB->chiffre;
-			carry = intermediaire >= 10;
-			intermediaire = intermediaire % 10;
-		}
-		else
-		{
-			//je pense que le problème vient du setup qui rajoute potentiellement des 0 pour ajuster la longueur...
-
-			intermediaire = (cA->chiffre - carry) - cB->chiffre;
-			carry = intermediaire < 0;
-			intermediaire = cA->chiffre + 10;
-			intermediaire = intermediaire - cB->chiffre;
-			//intermediaire = abs(intermediaire); //dirty hack, marche juste si les deux longueurs == 1
-		}	
-
-	/*	intermediaire = cA->chiffre + cB->chiffre + carry;
+		intermediaire = cA->chiffre + cB->chiffre + carry;
 
 		if(intermediaire > 9) {
 			carry = 1;
@@ -303,7 +295,6 @@ num* addition(num* a, num* b) {
 		} else {
 			carry = 0;
 		}
-	*/
 
 		result->chiffre = intermediaire;
 		
@@ -333,8 +324,7 @@ num* addition(num* a, num* b) {
 		r->dernier = newUnit;
 	}
 
-	if(carry && memeSigne) 
-	{
+	if(carry) {
 		cell* carryCell = malloc(sizeof(cell));
 		memcheck(carryCell);
 
@@ -348,21 +338,7 @@ num* addition(num* a, num* b) {
 		r->longueur++;
 	}
 
-	if(memeSigne)
-		r->positif = a->positif;
-	else
-	{
-		int quiEstPlusGrand = numComparator(a,b,1);
-		if(quiEstPlusGrand == 1) // a > b
-		{
-			r->positif = a->positif;
-		}
-		else //b > a
-		{
-			b->positif = b->positif;
-		}
-
-	}
+	r->positif = 1;
 	return r;
 }
 
@@ -371,26 +347,18 @@ num* addition(num* a, num* b) {
  */
 num* soustraction(num* a, num* b) 
 {
-	if(a->positif == 1 && b->positif == 1) //a-b = a + -b
+    int original_a_positif = a->positif;
+    int original_b_positif = b->positif;
+    
+    if(a->positif == 0 && b->positif ==  1)
 	{
-		b->positif = 0;
+		a->positif = 1;
+		num* res = addition(a,b);
+		res->positif = 0;
+		return res;
 	}
-	else if(a->positif == 1 && b->positif == 0) //a - -(b) = a + b
-	{
-		b->positif = 1;
-	}
-	else if(a->positif == 0 && b->positif ==  1) //-a - b = -a + -b 
-	{
-		b->positif = 0;
-	}
-	else // -a - -b = -a + b 
-	{
-		b->positif = 1;
-	}
-
-	return addition(a,b);
-
-/*	cell* result = malloc(sizeof(cell));
+    
+	cell* result = malloc(sizeof(cell));
 	memcheck(result);
 	
 	cell* newUnit = NULL;
@@ -418,21 +386,23 @@ num* soustraction(num* a, num* b)
 	}
 	
 	setupNombres(a, b);
+	
 	cA = a->nombre;
 	cB = b->nombre;
 	
 	r->nombre = result;
-
+	
 	do {
 		fini = cA->suivant == NULL && cB->suivant == NULL;
 		intermediaire = cA->chiffre - cB->chiffre;
 
 		if(intermediaire < 0) {
+			cA->chiffre += 10;
 			
 			if(cA->suivant != NULL) {
 				cA->suivant->chiffre--;
 			}
-			cA->chiffre += 10;
+			
 			intermediaire = cA->chiffre - cB->chiffre;
 		}
 		
@@ -461,7 +431,11 @@ num* soustraction(num* a, num* b)
 		newUnit->suivant = NULL;
 		r->dernier = newUnit;
 	}
-	return r;*/
+	
+    a->positif = original_a_positif;
+    b->positif = original_b_positif;
+    
+	return r;
 }
 
 /**
@@ -724,34 +698,30 @@ int strToBigNum(char* str, num* toCreate) {
 }
 
 /**
- * Compare les quantités de chaque nombre: zéro si nombre égaux, 1 si a > b, -1 si a < b.
+ * Compare les quantités de chaque nombre: zéro si nombre égaux, 1 si a > b, -1 si a < b.
  * (Voir "Spaceship operator").
  */
-int numComparator(num* a, num* b, int valeurAbsolue) 
-{
-	if(!valeurAbsolue)
-	{
-		if(a->positif > b->positif) {
-			return 1;
-		}
-		
-		if(a->positif < b->positif) {
-			return -1;
-		}
-
-		// Les nombres ont le même signe.
-		if(a->longueur > b->longueur) {
-			return a->positif ? 1 : -1;
-		}
-		
-		if(a->longueur < b->longueur) {
-			return a->positif ? -1 : 1;
-		}
+int numComparator(num* a, num* b) {
+	if(a->positif > b->positif) {
+		return 1;
 	}
-		if(a->longueur == 1 && b->longueur == 1) {
-			return (a->dernier->chiffre) > (b->dernier->chiffre) ? 1 : -1;
-		}
 	
+	if(a->positif < b->positif) {
+		return -1;
+	}
+
+	// Les nombres ont le même signe.
+	if(a->longueur > b->longueur) {
+		return a->positif ? 1 : -1;
+	}
+	
+	if(a->longueur < b->longueur) {
+		return a->positif ? -1 : 1;
+	}
+
+	if(a->longueur == 1 && b->longueur == 1) {
+		return (a->dernier->chiffre) > (b->dernier->chiffre) ? 1 : -1;
+	}
 	
 	// Les deux nombres ont la même longueur (> 1) et le même signe.
 	// On compare en commençant par la partie la plus singificative.
@@ -777,9 +747,8 @@ int numComparator(num* a, num* b, int valeurAbsolue)
 /**
  * Affiche un nombre.
  */
-void printNum(num* toPrint) 
-{
-	if(toPrint->longueur == 1 && toPrint->nombre->chiffre == 0)
+void printNum(num* toPrint) {
+    if(toPrint->longueur == 1 && toPrint->nombre->chiffre == 0)
 	{
 		printf("0\n");
 		return;
