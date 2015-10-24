@@ -224,6 +224,8 @@ int traitement_commande() {
 	}
 	
 	// TODO: Faire un superFree() sur tous les num* sauf ceux contenus dans "variables[26]".
+    
+    free(commandes->data);
 	free(commandes);
     
 	return 0;
@@ -598,7 +600,7 @@ num* multiplication(num* a, num* b) {
 		somme = addition(somme, &listeToAdd[j], somme->positif, (&listeToAdd[j])->positif);
 	}
 	
-	free(listeToAdd);
+	superFree(listeToAdd);
 	
 	return somme;
 }
@@ -847,7 +849,7 @@ char* entreeDynamique(FILE* input) {
  * Initialisation d'une pile.
  */
 void pile_init(pile* p) {
-	p->data = malloc(100 * sizeof(*p->data));
+	p->data = malloc(10 * sizeof(*p->data));
 	
 	if(p->data == NULL) {
 		printf("Mémoire épuisée, impossible de continuer le traitement.\n");
@@ -855,7 +857,7 @@ void pile_init(pile* p) {
 	}
 	
 	p->size = 0;
-	p->max_size = 100;
+	p->max_size = 10;
 }
 
 /**
@@ -898,6 +900,11 @@ num* pile_pop(pile* p) {
 	if(p->size == 0) {
 		return NULL;
 	} else {
+        if(p->size < p->max_size / 2) {
+            p->max_size /= 2;
+            p->data = realloc(p->data, p->max_size * sizeof(*p->data));
+        }
+        
 		num* top = pile_peek(p);
 		p->size--;
 		
