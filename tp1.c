@@ -235,7 +235,7 @@ int traitement_commande() {
 	if(partie != NULL) {
 		free(partie);
     }
-    
+   
 	if(entree != NULL) {
 		free(entree);
     }
@@ -246,10 +246,12 @@ int traitement_commande() {
 		printf("Erreur de syntaxe, veuillez completer vos calculs !\n");
 	}
 	
-    /*while(pile_peek(nombres) != NULL) {
-        num* nombre = pile_pop(nombres);
+	num* nombre;
+    while((nombre = pile_pop(nombres)) != NULL) {
+   //     num* nombre = pile_pop(nombres);
         
-        if(nombre != NULL) {
+        if(nombre != NULL) 
+        {
             int i = 0;
             int est_variable = 0;
             
@@ -263,11 +265,12 @@ int traitement_commande() {
             }
             
             if(est_variable == 0) {
+            //	if(nombre != NULL)
                 superFree(nombre);
                 nombre = NULL;
             }
         }
-    }*/
+    }
     
     free(nombres->data);
     free(nombres);
