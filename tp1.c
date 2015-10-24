@@ -64,8 +64,8 @@ num* pile_pop(pile* p);
 int pile_count(pile* p);
 
 // Définition des opérateurs.
-num* soustraction(num*, num*);
-num* addition(num*, num*);
+num* soustraction(num*, num*, int, int);
+num* addition(num*, num*, int, int);
 num* multiplication(num*, num*);
 
 // Fonctions de ménage.
@@ -118,9 +118,9 @@ int traitement_commande() {
 				num* a = pile_pop(commandes);
 				
 				if(strcmp(partie, "+") == 0) {
-					r = addition(a, b);
+					r = addition(a, b, a->positif, b->positif);
 				} else if(strcmp(partie, "-") == 0) {
-					r = soustraction(a, b);
+					r = soustraction(a, b, a->positif, b->positif);
 				} else if(strcmp(partie, "*") == 0) {
 					r = multiplication(a, b);
 				}
@@ -242,24 +242,27 @@ int main(int argc, char** argv) {
 /**
  * Opération d'addition.
  */
-num* addition(num* a, num* b) {
-
+num* addition(num* a, num* b, int ancien_a_positif, int ancien_b_positif) {
     if(a->positif == 0 && b->positif == 1)
 	{
 		a->positif = 1;
-		return soustraction(b,a);
+        
+		return soustraction(b, a, 1, 0); // Vu que a et b sont inversés, leur "ancien_a_positif" et "ancien_b_positif" aussi.
 	}
 
 	if(a->positif == 1 && b->positif == 0)
 	{
 		b->positif = 1;
-		return soustraction(a,b);
+        
+		return soustraction(a, b, 1, 0);
 	}
 	if(a->positif == 0 && b->positif == 0)
 	{
 		b->positif = 1;
-		return soustraction(a,b);
+        
+		return soustraction(a, b, 0, 0);
 	}
+    
 	setupNombres(a, b);
 
 	cell* cA = a->nombre;
@@ -339,22 +342,24 @@ num* addition(num* a, num* b) {
 	}
 
 	r->positif = 1;
+    
+    a->positif = ancien_a_positif;
+    b->positif = ancien_b_positif;
+    
 	return r;
 }
 
 /**
  * Opération de soustraction.
  */
-num* soustraction(num* a, num* b) 
+num* soustraction(num* a, num* b, int ancien_a_positif, int ancien_b_positif) 
 {
-    int original_a_positif = a->positif;
-    int original_b_positif = b->positif;
-    
     if(a->positif == 0 && b->positif ==  1)
 	{
 		a->positif = 1;
-		num* res = addition(a,b);
+		num* res = addition(a, b, 0, 1);
 		res->positif = 0;
+        
 		return res;
 	}
     
@@ -431,9 +436,9 @@ num* soustraction(num* a, num* b)
 		newUnit->suivant = NULL;
 		r->dernier = newUnit;
 	}
-	
-    a->positif = original_a_positif;
-    b->positif = original_b_positif;
+    
+    a->positif = ancien_a_positif;
+    b->positif = ancien_b_positif;
     
 	return r;
 }
@@ -581,7 +586,7 @@ num* multiplication(num* a, num* b) {
 	strToBigNum("0", somme);
 
 	for(j = 0; j < b->longueur; j++) {
-		somme = addition(somme, &listeToAdd[j]);
+		somme = addition(somme, &listeToAdd[j], somme->positif, (&listeToAdd[j])->positif);
 	}
 	
 	free(listeToAdd);
