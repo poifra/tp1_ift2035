@@ -247,20 +247,20 @@ num* addition(num* a, num* b, int ancien_a_positif, int ancien_b_positif) {
 	{
 		a->positif = 1;
         
-		return soustraction(b, a, 1, 0); // Vu que a et b sont inversés, leur "ancien_a_positif" et "ancien_b_positif" aussi.
+		return soustraction(b, a, ancien_b_positif, ancien_a_positif); // Vu que a et b sont inversés, leur "ancien_a_positif" et "ancien_b_positif" aussi.
 	}
 
 	if(a->positif == 1 && b->positif == 0)
 	{
 		b->positif = 1;
         
-		return soustraction(a, b, 1, 0);
+		return soustraction(a, b, ancien_a_positif, ancien_b_positif);
 	}
 	if(a->positif == 0 && b->positif == 0)
 	{
 		b->positif = 1;
         
-		return soustraction(a, b, 0, 0);
+		return soustraction(a, b, ancien_a_positif, ancien_b_positif);
 	}
     
 	setupNombres(a, b);
@@ -357,7 +357,9 @@ num* soustraction(num* a, num* b, int ancien_a_positif, int ancien_b_positif)
     if(a->positif == 0 && b->positif ==  1)
 	{
 		a->positif = 1;
-		num* res = addition(a, b, 0, 1);
+        
+		num* res = addition(a, b, ancien_a_positif, ancien_b_positif);
+        
 		res->positif = 0;
         
 		return res;
